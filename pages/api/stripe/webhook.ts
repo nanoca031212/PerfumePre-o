@@ -70,9 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.error('❌ Erro ao processar UTMify (server-side):', error);
         }
 
-        // Enviar conversão para Facebook CAPI (Redundância + Deduplicação)
+        // Enviar conversão para Facebook CAPI e TikTok CAPI (Redundância + Deduplicação)
         try {
           const { sendCapiEvent } = await import('@/lib/facebook-capi');
+          const { sendTikTokCapiEvent } = await import('@/lib/tiktok-capi');
 
           // Extrair dados do cliente
           const customerEmail = session.customer_details?.email || session.customer_email || undefined;
@@ -88,18 +89,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             lastName = parts.length > 1 ? parts.slice(1).join(' ') : undefined;
           }
 
-          // Extrair IDs dos produtos (se disponíveis na sessão ou metadata)
-          // Nota: Session objects nem sempre têm line_items expandidos no webhook, 
-          // a menos que expandidos explicitamente. Mas podemos tentar usar metadata.
-          // Para simplificar, usamos um ID genérico se não tivermos os itens, ou buscamos via API se crítico.
-          // Aqui usamos o ID da sessão como EventID para deduplicação com o Client-Side.
-
-          // Extrair metadados de rastreamento (FBP, FBC, IP, UA)
+          // Extrair metadados de rastreamento (FBP, FBC, IP, UA, TTCLID, TTP)
           const fbp = session.metadata?.fbp;
           const fbc = session.metadata?.fbc;
+          const ttclid = session.metadata?.ttclid;
+          const ttp = session.metadata?.ttp;
           const userAgent = session.metadata?.user_agent;
           const clientIp = session.metadata?.client_ip;
 
+          // Facebook CAPI
           await sendCapiEvent({
             eventName: 'Purchase',
             eventId: session.id, // Chave de deduplicação
@@ -116,8 +114,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             currency: session.currency?.toUpperCase() || 'GBP',
             sourceUrl: session.success_url || 'https://theperfumeuk.shop',
           });
+
+          // TikTok CAPI
+          await sendTikTokCapiEvent({
+            eventName: 'CompletePayment', // Formatado como CompletePayment pelo helper
+            eventId: session.id, // Chave de deduplicação idêntica
+            email: customerEmail,
+            phone: customerPhone,
+            clientIp,
+            userAgent,
+            ttp,
+            ttclid,
+            value: session.amount_total ? session.amount_total / 100 : 0,
+            currency: session.currency?.toUpperCase() || 'GBP',
+            sourceUrl: session.success_url || 'https://theperfumeuk.shop',
+            externalId: session.id,
+          });
         } catch (error) {
-          console.error('❌ Erro ao processar Facebook CAPI:', error);
+          console.error('❌ Erro ao processar CAPI (Facebook/TikTok):', error);
         }
 
         console.log('✅ Checkout session completed - client-side tracking ativo');

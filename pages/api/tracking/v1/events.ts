@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sendCapiEvent } from '@/lib/facebook-capi';
+import { sendTikTokCapiEvent } from '@/lib/tiktok-capi';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Configurar headers CORS
@@ -30,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // Processar evento para Facebook CAPI
+    // Processar evento para Facebook CAPI e TikTok CAPI
     const body = req.method === 'POST' ? req.body : req.query;
     const { eventName, eventId, parameters, userData } = body;
 
@@ -40,11 +41,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const userAgent = req.headers['user-agent'];
       const fbp = req.cookies['_fbp'];
       const fbc = req.cookies['_fbc'];
+      const ttp = req.cookies['_ttp'];
+      const ttclid = req.cookies['ttclid'];
+      
+      const generatedEventId = eventId || `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Enviar para CAPI em background (não bloquear a resposta)
       sendCapiEvent({
         eventName,
-        eventId: eventId || `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Fallback ID se não fornecido
+        eventId: generatedEventId, // Fallback ID se não fornecido
         email: userData?.em,
         phone: userData?.ph,
         firstName: userData?.fn,
@@ -59,6 +64,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         contentIds: parameters?.content_ids,
         contentType: parameters?.content_type || 'product'
       }).catch(err => console.error('[CAPI Background Error]', err));
+
+      // Enviar para TikTok CAPI em background
+      sendTikTokCapiEvent({
+        eventName,
+        eventId: generatedEventId,
+        email: userData?.em,
+        phone: userData?.ph,
+        clientIp,
+        userAgent,
+        ttp,
+        ttclid,
+        value: parameters?.value,
+        currency: parameters?.currency,
+        sourceUrl: req.headers.referer,
+        contentIds: parameters?.content_ids,
+        contentType: parameters?.content_type || 'product'
+      }).catch(err => console.error('[TikTok CAPI Background Error]', err));
     }
 
     // Resposta de sucesso simples

@@ -90,6 +90,7 @@ export default function Document() {
                   ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t,n.onerror=function(){console.warn('TikTok Pixel failed to load')};e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
                   
                   ttq.load('D72L9I3C77UCBSL4NTIG');
+                  ttq.load('D7M0PSJC77U44OJIKH80'); // Segundo Pixel TikTok
                   ttq.page();
                 } catch (error) {
                   console.warn('TikTok Pixel initialization failed:', error);
@@ -99,7 +100,7 @@ export default function Document() {
           }}
         />
 
-        {/* UTMify Pixel Script */}
+        {/* UTMify Pixel Script 1 */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -109,6 +110,20 @@ export default function Document() {
               a.setAttribute("defer", "");
               a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
               document.head.appendChild(a);
+            `
+          }}
+        />
+
+        {/* UTMify Pixel Script 2 (TikTok) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.tikTokPixelId = "69ec0ebe445f98a508d463f9";
+              var b = document.createElement("script");
+              b.setAttribute("async", "");
+              b.setAttribute("defer", "");
+              b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
+              document.head.appendChild(b);
             `
           }}
         />
