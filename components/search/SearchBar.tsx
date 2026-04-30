@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types/product';
+import { trackSearch } from '@/lib/tiktokEvents';
 
 interface SearchBarProps {
   isOpen: boolean;
@@ -80,6 +81,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ isOpen, onClose, products }) => {
       setSuggestions(generateSuggestions(searchTerm));
     }
   }, [searchTerm, products]);
+
+  // Track search with debounce
+  useEffect(() => {
+    if (searchTerm.length > 2) {
+      const timer = setTimeout(() => {
+        trackSearch(searchTerm);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm]);
 
   // Extract unique brands
   const allBrands = Array.from(new Set(

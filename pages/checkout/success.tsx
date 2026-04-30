@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
+import { trackPlaceAnOrder } from '@/lib/tiktokEvents'
 
 interface ProcessingStatus {
   stripe_data: 'loading' | 'success' | 'error';
@@ -56,6 +57,17 @@ export default function CheckoutSuccess() {
       setProcessingStatus(prev => ({ ...prev, stripe_data: 'success' }))
       
       console.log('✅ Dados do Stripe recuperados:', stripeData.data)
+
+      trackPlaceAnOrder({
+        items: stripeData.data.line_items.map((i: any) => ({
+          id: i.price?.product || i.id,
+          name: i.description,
+          price: (i.amount_total / 100) / (i.quantity || 1),
+          quantity: i.quantity || 1
+        })),
+        total: stripeData.data.amount_total / 100,
+        orderId: stripeData.data.id || id
+      });
 
       // 3. Processar tracking UTM (se disponível)
       setProcessingStatus(prev => ({ ...prev, utm_tracking: 'loading' }))

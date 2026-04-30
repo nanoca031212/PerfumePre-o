@@ -17,6 +17,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getPromoTarget, calculateTimeLeft } from "@/lib/timer";
 import { useRouter } from "next/router";
+import { trackViewContent, trackAddToCart } from "@/lib/tiktokEvents";
 
 interface ProductPageProps {
   product: Product;
@@ -35,6 +36,16 @@ export default function ProductPage({
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const { utmParams } = useUTM();
+
+  useEffect(() => {
+    if (product) {
+      trackViewContent({
+        id: product.id,
+        name: product.title,
+        price: Number(product.price.regular) || 49.99
+      });
+    }
+  }, [product]);
 
   // Clear bundleState when coming from homepage (VIEW PROMOTION link adds ?reset=true)
   useEffect(() => {
@@ -88,6 +99,13 @@ export default function ProductPage({
 
   const handleBundleAddToCart = async (selection: BundleSelection) => {
     try {
+      trackAddToCart({
+        id: product.id, // ID of the bundle/promotion
+        name: `Bundle Promotion: ${selection.fragrances.map(f => f.title).join(', ')}`,
+        price: selection.totalPrice, // e.g. 49.99
+        quantity: 1
+      });
+
       clearCart();
       const stripeProductMapping =
         await import("@/data/stripe_product_mapping.json");

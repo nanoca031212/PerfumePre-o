@@ -3,6 +3,7 @@ import { X, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
 import { useRouter } from 'next/router'
 import { validateAndFixCartItem } from '@/lib/cacheCleanup'
+import { trackInitiateCheckout } from '@/lib/tiktokEvents'
 
 interface ShoppingBagProps {
   isOpen: boolean
@@ -39,7 +40,16 @@ export default function ShoppingBag({ isOpen, onClose }: ShoppingBagProps) {
       }
 
       // Redirecionar para a página de checkout (Embedded Checkout)
-      // O evento InitiateCheckout será disparado lá após a coleta de dados
+      trackInitiateCheckout({
+        items: items.map(item => ({
+          id: item.id,
+          name: item.title,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        total: total
+      });
+
       onClose(); // Fechar o carrinho
       router.push(`/checkout${window.location.search}`);
 

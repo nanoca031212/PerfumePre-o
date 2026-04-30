@@ -7,6 +7,7 @@ import AppLayout from '@/components/layout/AppLayout'
 import { usePixel } from '@/hooks/usePixel'
 import { useUTM } from '@/hooks/useUTM'
 import { useRouter } from 'next/router'
+import TikTokPixel from '@/components/TikTokPixel'
 
 export default function App({ Component, pageProps }: AppProps) {
   // Inicializa o rastreamento de página
@@ -21,6 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <CartProvider>
+      <TikTokPixel />
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         <meta name="theme-color" content="#ee7d1b" />
