@@ -111,12 +111,8 @@ export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
 
   const promises = [];
 
-  if (pixelId1 && token1) {
-    promises.push(sendToPixel(pixelId1, token1, 'Pixel 1'));
-  }
-
-  if (pixelId2 && token2) {
-    promises.push(sendToPixel(pixelId2, token2, 'Pixel 2'));
+  if (pixelId && token) {
+    promises.push(sendToPixel(pixelId, token, 'Pixel 1'));
   }
 
   await Promise.all(promises);
