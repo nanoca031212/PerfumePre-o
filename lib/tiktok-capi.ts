@@ -39,13 +39,10 @@ const formatEventName = (eventName: string): string => {
 };
 
 export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
-  const pixelId1 = 'D72L9I3C77UCBSL4NTIG';
-  const token1 = '43a1fceded79c8ce9c5917da3c025e6cd4480f80';
-  
-  const pixelId2 = 'D7M0PSJC77U44OJIKH80';
-  const token2 = '20d16f2cdfbe641d95603692b38aa2cfc4dbc8ce';
+  const pixelId = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID;
+  const token = process.env.NEXT_PUBLIC_TIKTOK_TOKEN;
 
-  if (!pixelId1 && !pixelId2) {
+  if (!pixelId) { 
     console.warn('⚠️ TikTok CAPI: Nenhum Pixel ID configurado.');
     return;
   }
