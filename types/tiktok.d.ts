@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    ttq: {
+    ttq?: {
       load: (pixelId: string) => void;
       page: () => void;
       track: (event: string, params?: Record<string, unknown>) => void;

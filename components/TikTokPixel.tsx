@@ -7,9 +7,9 @@ const TikTokPixel = () => {
     if (!pixelId) return;
 
     // Load TikTok Pixel snippet
-    !function (w, d, t) {
+    const initTikTok = function (w: any, d: any, t: string) {
       w.TiktokAnalyticsObject=t;
-      var ttq=w[t as any]=w[t as any]||[];
+      var ttq=w[t]=w[t]||[];
       ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],
       ttq.setAndDefer=function(t: any,e: any){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
       for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
@@ -26,11 +26,13 @@ const TikTokPixel = () => {
         a.parentNode?.insertBefore(o,a)
       };
       
-      if (typeof window.ttq.load === 'function') {
-        window.ttq.load(pixelId);
-        window.ttq.page();
+      if (w.ttq && typeof w.ttq.load === 'function') {
+        w.ttq.load(pixelId);
+        w.ttq.page();
       }
-    }(window as any, document as any, 'ttq');
+    };
+    
+    initTikTok(window, document, 'ttq');
     
   }, []);
 

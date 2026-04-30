@@ -1,6 +1,6 @@
 // 1. ViewContent — disparar na página de produto
 export function trackViewContent(product: {
-  id: string;
+  id: string | number;
   name: string;
   price: number;
 }) {
@@ -14,7 +14,7 @@ export function trackViewContent(product: {
 
 // 2. AddToCart — disparar ao clicar em "SELECT"
 export function trackAddToCart(product: {
-  id: string;
+  id: string | number;
   name: string;
   price: number;
   quantity: number;
@@ -29,7 +29,7 @@ export function trackAddToCart(product: {
 
 // 3. InitiateCheckout — disparar ao clicar em "CHECKOUT"
 export function trackInitiateCheckout(cart: {
-  items: Array<{ id: string; name: string; price: number; quantity: number }>;
+  items: Array<{ id: string | number; name: string; price: number; quantity: number }>;
   total: number;
 }) {
   if (typeof window === 'undefined' || !window.ttq) return;
@@ -42,7 +42,7 @@ export function trackInitiateCheckout(cart: {
 
 // 4. PlaceAnOrder — disparar na página de confirmação de pedido
 export function trackPlaceAnOrder(order: {
-  items: Array<{ id: string; name: string; price: number; quantity: number }>;
+  items: Array<{ id: string | number; name: string; price: number; quantity: number }>;
   total: number;
   orderId?: string;
 }) {

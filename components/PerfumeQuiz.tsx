@@ -126,7 +126,6 @@ const progressBarStyles = `
 declare global {
   interface Window {
     TiktokAnalyticsObject?: string;
-    ttq?: any;
     pixelId?: string;
   }
 }
