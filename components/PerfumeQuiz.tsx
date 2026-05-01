@@ -1091,7 +1091,7 @@ export default function PerfumeQuiz() {
             <div className="w-full max-w-xs pt-4 space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <Link href="/">
-                  <button className="w-full bg-black text-white text-lg font-bold py-5 px-2 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
+                  <button className="w-full bg-black text-white text-lg font-bold py-5 gap-2 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
                     <span>GO TO STORE</span>
                     <svg
                       width="24"
@@ -1110,18 +1110,25 @@ export default function PerfumeQuiz() {
                   </button>
                 </Link>
 
-                <button
+      
+              </div>
+
+              <div className="text-xs text-black/40 font-mono">
+                Reservation expires in{" "}
+                <span className="text-black">{formatTime(timeLeft)}</span>
+              </div>
+                        <button
                   onClick={handleStartQuiz}
                   disabled={isLoading}
-                  className="w-full bg-transparent border-2 border-white text-black text-lg font-bold py-5 rounded-full transition-all duration-300 hover:bg-white/10 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
+                  className="w-full bg-transparent border-2 border-white text-black text-sm font-bold rounded-full transition-all duration-300 hover:bg-white/10 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
                     <LoadingSpinner size="md" />
                   ) : (
                     <>
-                      <span className="uppercase font-medium">Take part in the survey</span>
+                      <span className="uppercase   text-white font-medium">Take part in the survey</span>
                       <svg
-                        className="w-5 h-5"
+                        className="w-5 h-5 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1136,12 +1143,6 @@ export default function PerfumeQuiz() {
                     </>
                   )}
                 </button>
-              </div>
-
-              <div className="text-xs text-black/40 font-mono">
-                Reservation expires in{" "}
-                <span className="text-black">{formatTime(timeLeft)}</span>
-              </div>
             </div>
           </div>
 
