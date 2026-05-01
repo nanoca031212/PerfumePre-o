@@ -4,13 +4,15 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Trophy, DollarSign } from "lucide-react";
+import { Trophy, DollarSign, Badge } from "lucide-react";
 import Image from "next/image";
 import PriceAnchoring from "@/components/price-anchoring";
 import styles from "@/styles/animations.module.css";
 import { trackQuizStep } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { useCart } from "@/contexts/CartContext";
+import Link from "next/link";
+import { Check } from "lucide-react";
 
 // Add animated border keyframes for progress
 const progressBarStyles = `
@@ -120,6 +122,56 @@ const progressBarStyles = `
     border-radius: 9999px;
     transition: width 0.1s linear;
   }
+
+  @keyframes glitch {
+    0% {
+      text-shadow: 0.05em 0 0 rgba(255, 0, 80, 0.75),
+        -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+        -0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+    14% {
+      text-shadow: 0.05em 0 0 rgba(255, 0, 80, 0.75),
+        -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+        -0.025em 0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+    15% {
+      text-shadow: -0.05em -0.025em 0 rgba(255, 0, 80, 0.75),
+        0.025em 0.025em 0 rgba(0, 255, 255, 0.75),
+        -0.05em -0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+    49% {
+      text-shadow: -0.05em -0.025em 0 rgba(255, 0, 80, 0.75),
+        0.025em 0.025em 0 rgba(0, 255, 255, 0.75),
+        -0.05em -0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+    50% {
+      text-shadow: 0.025em 0.05em 0 rgba(255, 0, 80, 0.75),
+        0.05em 0 0 rgba(0, 255, 255, 0.75), 0 -0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+    99% {
+      text-shadow: 0.025em 0.05em 0 rgba(255, 0, 80, 0.75),
+        0.05em 0 0 rgba(0, 255, 255, 0.75), 0 -0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+    100% {
+      text-shadow: -0.025em 0 0 rgba(255, 0, 80, 0.75),
+        -0.025em -0.025em 0 rgba(0, 255, 255, 0.75),
+        -0.025em -0.05em 0 rgba(255, 255, 0, 0.75);
+    }
+  }
+
+  .glitch-text {
+    animation: glitch 500ms infinite;
+  }
+
+  @keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s infinite;
+  }
 `;
 
 // Declare tipos globais para os pixels
@@ -140,83 +192,68 @@ interface Question {
 
 const questions: Question[] = [
   {
-    id: 1,
-    question: "When choosing the perfect perfume, what matters most to you?",
-    options: [
-      "The scent / fragrance notes 🌸",
-      "How long it lasts on the skin ⏳",
-      "The brand ✨",
-      "The price 💷",
-    ],
-    correct: 0,
-    explanation: "The fragrance notes are the heart of any great perfume!",
-  },
-  {
     id: 2,
-    question: "Where do you usually discover new perfumes?",
+    question: "Where did you find us?",
     options: [
-      "In physical stores 🏬",
-      "On social media 📱",
-      "Through online ads 💻",
-      "From friends or family 👥",
+      "TikTok ",
+      "Facebook ",
+      "Instagram ",
+ 
     ],
     correct: 0,
-    explanation:
-      "Physical stores offer the best experience to test and discover new scents!",
+    explanation: "We're glad you're here!",
   },
   {
     id: 3,
-    question: "How often do you buy a new perfume?",
+    question: "Have you seen us before?",
     options: [
-      "Once a year",
-      "Two to three times a year",
-      "Every season (four times a year)",
-      "Monthly or more",
+      "Yes",
+      "No",
+    ],
+    correct: 0,
+    explanation:
+      "We love to see familiar faces around here!",
+  },
+  {
+    id: 4,
+    question: "When did you last buy a fragrance?",
+    options: [
+      "Recently",
+      "A while ago",
+      "Not sure",
+     
     ],
     correct: 0,
     explanation:
       "Taking time to choose the perfect perfume makes each purchase special!",
   },
   {
-    id: 4,
+    id: 5,
     question:
-      "What influences your decision the most when buying a new perfume?",
+      "What do you usually go for?",
     options: [
-      "Recommendations from friends or family",
-      "Online reviews",
-      "Testing in store",
-      "Promotions or discounts",
+      "Something simple",
+      "Something strong",
+      "Something popular",
+   
     ],
     correct: 0,
     explanation:
       "Personal recommendations from trusted people are invaluable when choosing fragrances!",
   },
   {
-    id: 5,
-    question: "Which type of promotion interests you the most?",
+    id: 6,
+    question: "How do you usually choose?",
     options: [
-      "Direct discount on price",
-      "Multi-product kits",
-      "Free samples with purchase",
-      "Cashback or loyalty points",
+      "Quick decision",
+      "Compare a bit",
+      "Just go with it",
     ],
     correct: 0,
     explanation:
       "Direct discounts provide immediate value on your favorite fragrances!",
   },
-  {
-    id: 6,
-    question: "Do you usually buy perfumes more for yourself or as gifts?",
-    options: [
-      "For myself 🎁",
-      "As a gift 🎀",
-      "Both equally ⚖️",
-      "Depends on the occasion 🗓️",
-    ],
-    correct: 0,
-    explanation:
-      "Treating yourself to a beautiful fragrance is always a wonderful choice!",
-  },
+
 ];
 
 // Enhanced notification component with better animations
@@ -596,7 +633,7 @@ const useAudioSystem = () => {
             "https://cdn.shopify.com/s/files/1/0946/2290/8699/files/notifica_o-venda.mp3?v=1749150271",
           );
           audio.preload = "auto";
-          audio.volume = 1;
+          audio.volume = 0.2; // Mais silencioso
           audioRef.current = audio;
 
           // Inicializa o contexto de áudio para dispositivos móveis
@@ -805,27 +842,9 @@ const CompleteHeader = ({ onUSPClick }: { onUSPClick: () => void }) => {
       className="bg-white font-size-12 border-b border-gray-200 sticky top-0 z-50 shadow-sm"
     >
       {/* Logo Section - Nova seção no topo */}
-      <div className="w-full bg-black border-b border-gray-100 py-3">
-        <div className="flex justify-center">
-          <a
-            href="#"
-            aria-label="Homepage"
-            className="flex items-center hover:opacity-80 transition-opacity duration-200"
-            data-auto-id="logo"
-          >
-            <img src="/logo.avif" alt="Drapeau France" className="w-30 h-10" />
-          </a>
-        </div>
-      </div>
 
       {/* USP Bar */}
-      <div className="w-full bg-[#e7071d] border-b border-gray-200 transition-colors duration-200 py-2 group">
-        <div className="flex items-center justify-center space-x-2 px-4">
-          <div className="text-sm font-medium text-[#ffffff] uppercase tracking-wide">
-            Luxury fragrances. Up to 70% off. Limited stock
-          </div>
-        </div>
-      </div>
+  
     </header>
   );
 };
@@ -834,7 +853,7 @@ const CompleteHeader = ({ onUSPClick }: { onUSPClick: () => void }) => {
 export default function PerfumeQuiz() {
   const router = useRouter();
   const { addItem, setIsOpen } = useCart();
-  const [gameStarted, setGameStarted] = useState(true);
+  const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -843,6 +862,7 @@ export default function PerfumeQuiz() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showUSPPanel, setShowUSPPanel] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
 
   // Add styles to document head
   useEffect(() => {
@@ -875,10 +895,38 @@ export default function PerfumeQuiz() {
     }
   }, [selectedAnswer, isSubmitting, quizCompleted]);
 
+  // Timer countdown logic
+  useEffect(() => {
+    if (!gameStarted) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [gameStarted]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
   // Debug para verificar o estado
   useEffect(() => {
     console.log("showUSPPanel state changed:", showUSPPanel);
   }, [showUSPPanel]);
+
+  // Redirect effect when quiz is completed
+  useEffect(() => {
+    if (quizCompleted) {
+      const timer = setTimeout(() => {
+        handleBuyNowClick("standard");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [quizCompleted]);
 
   // Usar o hook de delay
   const delayedElements = useDelayedElements();
@@ -954,19 +1002,13 @@ export default function PerfumeQuiz() {
       Number.parseInt(selectedAnswer) === currentQuestionData.correct;
     const questionNumber = currentQuestion + 1;
 
-    // Sempre incrementar o contador, independente da resposta estar correta
-    setCorrectAnswers((prev) => {
-      if (prev >= questions.length) return prev;
-      const newValue = prev + 1;
-      console.log("Discount updated:", newValue);
-      return newValue;
-    });
-
     // Tracking de eventos - rastrear cada pergunta
     trackQuizStep("question_answered", questionNumber, isCorrect);
 
-    // Sempre mostrar a notificação
-    setShowNotification(true);
+    // Only track progress, remove discount logic and notification
+    setCorrectAnswers((prev) => (prev < questions.length ? prev + 1 : prev));
+
+    // Re-enable sound effect at lower volume for all questions
     playSound();
 
     // Avançar diretamente para a próxima pergunta ou finalizar o quiz
@@ -1012,55 +1054,98 @@ export default function PerfumeQuiz() {
     }
   }, [quizCompleted]);
 
-  // Initial screen with the president
+  // Initial screen with the TikTok design
   if (!gameStarted) {
     return (
       <>
-        <div className="min-h-screen bg-white flex flex-col">
-          <CompleteHeader onUSPClick={handleUSPClick} />
-          <USPPanel isOpen={showUSPPanel} onClose={handleUSPClose} />
-          <div className="flex-grow">
-            <div className="container pt-20 gap-10">
-              <div className="text-center mb-10 animate-fadeIn">
-                <h1 className="text-4xl font-normal font-product-sans text-gray-900">
-                  Message from The Perfume Shop CEO
-                </h1>
-              </div>
+        <div className="min-h-screen bg-white text-black flex flex-col font-sans overflow-hidden">
+          {/* TikTok Badge at Top */}
 
-              <div className="space-y-14">
-                <div className="animate-scaleIn">
-                  {/* <VideoPlayer isReady={true} /> */}
-                  <VideoPlayer isReady={true} />
+          <div className="flex-grow flex flex-col items-center justify-center px-6 text-center space-y-8">
+            <div className="space-y-4 animate-fadeIn">
+              <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-none">
+                Confirmed   User
+               
+              </h1>
+              <p className="text-black/60 text-lg max-w-xs mx-auto leading-tight">
+                Participate in the survey or go directly to the offer.
+              </p>
+            </div>
+
+            <div className="w-full max-w-xs space-y-3 animate-slideIn">
+              {[
+                "Confirmed eligibility",
+                "Payment security",
+                "Identified user",
+              
+              ].map((item, i) => (
+                <div key={i} className="flex items-center space-x-3 text-left">
+                  <div className="bg-green-700 rounded-full p-1">
+                    <Check className="h-4 w-4 text-white stroke-[3]" />
+                  </div>
+                  <span className="font-medium text-[15px]">{item}</span>
                 </div>
+              ))}
+            </div>
 
-                <div className="bg-black font-product-sans border-[2px] border-[#f00] p-3 shadow-sm animate-slideIn animated-border">
-                  <blockquote className="text-xl md:text-lg text-[#ffffff] text-center leading-relaxed">
-                    "Answer 6 questions about your perfume preferences and get
-                    £120.00 off a set of perfumes."
-                  </blockquote>
-                </div>
+            <div className="w-full max-w-xs pt-4 space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <Link href="/">
+                  <button className="w-full bg-black text-white text-lg font-bold py-5 px-2 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
+                    <span>GO TO STORE</span>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>{" "}
+                  </button>
+                </Link>
 
-                <Button
+                <button
                   onClick={handleStartQuiz}
                   disabled={isLoading}
-                  className="w-full bg-black border-2 border-[#f00] hover:border-[#f00] hover:bg-[#f00] text-white hover:text-white text-xl py-7 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-4"
-                  size="lg"
+                  className="w-full bg-transparent border-2 border-white text-black text-lg font-bold py-5 rounded-full transition-all duration-300 hover:bg-white/10 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
-                    <>
-                      <LoadingSpinner size="md" />
-                      Starting Quiz...
-                    </>
+                    <LoadingSpinner size="md" />
                   ) : (
                     <>
-                      <Trophy className="h-6 w-6" />
-                      Start Quiz
+                      <span className="uppercase font-medium">Take part in the survey</span>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
                     </>
                   )}
-                </Button>
+                </button>
+              </div>
+
+              <div className="text-xs text-black/40 font-mono">
+                Reservation expires in{" "}
+                <span className="text-black">{formatTime(timeLeft)}</span>
               </div>
             </div>
           </div>
+
+          {/* Footer Subtle Text */}
         </div>
       </>
     );
@@ -1068,102 +1153,67 @@ export default function PerfumeQuiz() {
 
   if (quizCompleted) {
     return (
-      <>
-        <div className="min-h-screen bg-white flex flex-col">
-          <CompleteHeader onUSPClick={handleUSPClick} />
-          <USPPanel isOpen={showUSPPanel} onClose={handleUSPClose} />
-          <div className="flex-grow container mx-auto">
-            <div className="space-y-4">
-              <div className="transform transition-all duration-500">
-                <PriceAnchoring
-                  correctAnswers={correctAnswers}
-                  onBuyClick={handleBuyNowClick}
-                />
-              </div>
-
-              <div className="flex flex-col gap-4">
-                {/* Discount progress bar */}
-                <DiscountProgressBar correctAnswers={correctAnswers} />
-              </div>
-            </div>
+      <div className="min-h-screen bg-white flex items-center justify-center font-sans p-6">
+        <div className="text-center space-y-6 animate-fadeIn">
+          <div className="flex justify-center">
+            <LoadingSpinner size="lg" />
           </div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            You are being redirected to the purchase page...
+          </h2>
+          <p className="text-gray-500">
+            Please wait a moment while we prepare your discount.
+          </p>
         </div>
-      </>
+      </div>
     );
   }
 
   return (
     <>
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col font-sans">
         <CompleteHeader onUSPClick={handleUSPClick} />
         <USPPanel isOpen={showUSPPanel} onClose={handleUSPClose} />
-        <div className="flex-grow container mx-auto px-1 py-4">
-          <SuccessNotification
-            show={showNotification}
-            onClose={() => setShowNotification(false)}
-          />
+        <div className="flex-grow flex items-center justify-center container mx-auto px-4">
+          <div className="w-full max-w-2xl space-y-12 py-8">
+            <div className="space-y-8">
+              {questions[currentQuestion] && (
+                <div className="bg-white shadow-sm transition-all duration-300 mb-4">
+                  <h3 className="text-3xl font-semibold mb-4 text-black border-b border-[#f00] pb-2">
+                    {questions[currentQuestion].question}
+                  </h3>
 
-          <div className="w-full max-w-2xl mx-auto space-y-18">
-            <div className="animate-fadeIn">
-              <div className="text-center">
-                <p className="text-xl text-gray-600">Your discount</p>
-                <p
-                  className={`text-2xl font-bold text-[#1bca32] transform transition-all duration-500 ${
-                    correctAnswers > 0 ? "scale-125 animate-pulse" : ""
-                  }`}
-                >
-                  £
-                  {(correctAnswers === 6 ? 120.0 : correctAnswers * 20).toFixed(
-                    2,
-                  )}
-                </p>
-                <p className="text-xs text-gray-500">Participation reward</p>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="animate-slideIn">
-                {questions[currentQuestion] && (
-                  <div className="bg-white shadow-sm transition-all duration-300 mb-4">
-                    <h3 className="text-xl font-semibold mb-4 text-black border-b border-[#f00] pb-2">
-                      {questions[currentQuestion].question}
-                    </h3>
-
-                    <RadioGroup
-                      value={selectedAnswer}
-                      onValueChange={setSelectedAnswer}
-                      className="space-y-4"
-                    >
-                      {questions[currentQuestion].options.map(
-                        (option: string, index: number) => (
-                          <div
-                            key={index}
-                            className={`flex items-center space-x-3 p-4 transition-all duration-200 cursor-pointer border-2 ${
-                              selectedAnswer === index.toString()
-                                ? "bg-[#e90a0a] border-[#e90a0a] shadow-sm"
-                                : "bg-gray-50 border-gray-200 hover:border-gray-400 hover:bg-white"
-                            }`}
+                  <RadioGroup
+                    value={selectedAnswer}
+                    onValueChange={setSelectedAnswer}
+                    className="space-y-4"
+                  >
+                    {questions[currentQuestion].options.map(
+                      (option: string, index: number) => (
+                        <div
+                          key={index}
+                          className={`flex items-center space-x-3 p-4 transition-all duration-200 cursor-pointer border-2 ${
+                            selectedAnswer === index.toString()
+                              ? "bg-[#e90a0a] border-[#e90a0a] shadow-sm"
+                              : "bg-gray-50 border-gray-200 hover:border-gray-400 "
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value={index.toString()}
+                            id={`option-${index}`}
+                          />
+                          <Label
+                            htmlFor={`option-${index}`}
+                            className={`flex-1 cursor-pointer font-medium text-lg ${selectedAnswer === index.toString() ? "text-black" : "text-gray-900"}`}
                           >
-                            <RadioGroupItem
-                              value={index.toString()}
-                              id={`option-${index}`}
-                            />
-                            <Label
-                              htmlFor={`option-${index}`}
-                              className={`flex-1 cursor-pointer font-medium text-lg ${selectedAnswer === index.toString() ? "text-white" : "text-gray-900"}`}
-                            >
-                              {option}
-                            </Label>
-                          </div>
-                        ),
-                      )}
-                    </RadioGroup>
-                  </div>
-                )}
-
-                {/* Discount progress bar instead of quiz progress */}
-                <DiscountProgressBar correctAnswers={correctAnswers} />
-              </div>
+                            {option}
+                          </Label>
+                        </div>
+                      ),
+                    )}
+                  </RadioGroup>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1183,27 +1233,29 @@ const DiscountProgressBar = ({
   const progressPercentage = (discount / maxDiscount) * 100;
 
   return (
-    <div className="p-4 rounded-lg mb-20">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-600">Discount progress:</span>
-        <div>
-          <span className="font-semibold">£{discount} /</span>
-          <span className="font-semibold text-red-600">
-            £{maxDiscount.toFixed(2)}
-          </span>
+    <div>
+      <div className="p-4 rounded-lg">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Discount progress:</span>
+          <div>
+            <span className="font-semibold text-black">£{discount} /</span>
+            <span className="font-semibold text-red-600">
+              £{maxDiscount.toFixed(2)}
+            </span>
+          </div>
         </div>
-      </div>
-      <div
-        aria-valuemax={100}
-        aria-valuemin={0}
-        aria-valuenow={progressPercentage}
-        role="progressbar"
-        className="relative h-4 w-full overflow-hidden rounded-full bg-gray-200 mt-2"
-      >
         <div
-          className="discount-progress-bar h-full transition-all duration-500 ease-out"
-          style={{ width: `${progressPercentage}%` }}
-        />
+          aria-valuemax={100}
+          aria-valuemin={0}
+          aria-valuenow={progressPercentage}
+          role="progressbar"
+          className="relative h-4 w-full overflow-hidden rounded-full bg-gray-200 mt-2"
+        >
+          <div
+            className="discount-progress-bar h-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
       </div>
     </div>
   );
