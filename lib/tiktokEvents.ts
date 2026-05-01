@@ -51,8 +51,7 @@ export function trackPlaceAnOrder(order: {
     contents: order.items.map(i => ({ content_id: i.id, content_name: i.name, content_type: 'product', quantity: i.quantity, price: i.price })),
     value: order.total,
     currency: 'GBP',
-  }, {
-    // event_id must match the webhook's CAPI event_id (session.id) for deduplication
+    // event_id inside properties — TikTok ttq.track only accepts 2 args
     event_id: order.orderId,
   });
 }
