@@ -32,9 +32,9 @@ function isAlreadyProcessed(sessionId: string): boolean {
 
 function markAsProcessed(sessionId: string): void {
   // Cleanup old entries to avoid unbounded memory growth
-  for (const [id, ts] of processedSessions.entries()) {
+  processedSessions.forEach((ts, id) => {
     if (Date.now() - ts > IDEMPOTENCY_TTL_MS) processedSessions.delete(id);
-  }
+  });
   processedSessions.set(sessionId, Date.now());
 }
 
