@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useCart } from '@/contexts/CartContext';
 import Head from 'next/head';
 import { usePixel } from '@/hooks/usePixel';
-import { sendClientSideConversionToUtmfy, retryFailedUtmfyConversions } from '@/lib/clientSideUtmfy';
+import { retryFailedUtmfyConversions } from '@/lib/clientSideUtmfy';
 import Image from 'next/image';
 
 export default function CheckoutReturn() {
@@ -13,10 +13,11 @@ export default function CheckoutReturn() {
   const [status, setStatus] = useState(null);
   const [customerEmail, setCustomerEmail] = useState('');
   const pixel = usePixel();
-  const [purchaseTracked, setPurchaseTracked] = useState(false);
+  // useRef: survives StrictMode double-mounts — unlike useState which resets
+  const purchaseTrackedRef = useRef(false);
 
   useEffect(() => {
-    // Retry failed UTMify conversions on mount
+    // Retry any UTMify conversions that previously failed (client-side localStorage fallback)
     retryFailedUtmfyConversions();
   }, []);
 
@@ -33,38 +34,30 @@ export default function CheckoutReturn() {
             if (data.status === 'complete') {
               clearCart();
 
-              // Track Purchase if not already tracked
-              if (!purchaseTracked) {
+              // Guard: prevent double-firing on StrictMode re-mounts or reloads
+              if (!purchaseTrackedRef.current) {
+                purchaseTrackedRef.current = true;
+
+                // Fire Meta client-side Purchase event.
+                // eventID = session_id → must match the webhook's CAPI event_id for deduplication.
+                // UTMify is intentionally NOT sent here — the Stripe webhook already
+                // calls sendConversionToUtmfy server-side with the real session data.
                 pixel.purchase({
-                  value: data.amount_total / 100, // Stripe amount is in cents
+                  value: data.amount_total / 100,
                   currency: data.currency.toUpperCase(),
                   content_ids: data.line_items.map((item: any) => item.product_id),
                   content_type: 'product',
                   num_items: data.line_items.reduce((acc: number, item: any) => acc + item.quantity, 0)
                 }, {
-                  eventID: Array.isArray(session_id) ? session_id[0] : session_id // Deduplication Key (must match Server-Side)
+                  eventID: Array.isArray(session_id) ? session_id[0] : session_id
                 });
-
-                // Send conversion to UTMify (Client-Side Fallback)
-                sendClientSideConversionToUtmfy(
-                  data.line_items.map((item: any) => ({
-                    id: item.product_id,
-                    name: item.product_name,
-                    quantity: item.quantity,
-                    price: item.amount_total / 100 / item.quantity
-                  })),
-                  data.amount_total / 100,
-                  data.utm_params || {}
-                );
-
-                setPurchaseTracked(true);
               }
             }
           }
         })
         .catch(err => console.error("Error fetching session details:", err));
     }
-  }, [session_id, purchaseTracked]);
+  }, [session_id]);
 
   if (status === 'open') {
     return (

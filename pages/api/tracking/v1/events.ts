@@ -2,6 +2,10 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { sendCapiEvent } from '@/lib/facebook-capi';
 import { sendTikTokCapiEvent } from '@/lib/tiktok-capi';
 
+// Events that must ONLY come through the Stripe webhook (with proper deduplication via session.id).
+// Blocking them here prevents double-counting when the client-side pixel also fires.
+const WEBHOOK_ONLY_EVENTS = new Set(['Purchase', 'CompletePayment', 'purchase', 'completepayment']);
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Configurar headers CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,8 +39,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const body = req.method === 'POST' ? req.body : req.query;
     const { eventName, eventId, parameters, userData } = body;
 
-    // Se tivermos os dados mínimos para CAPI (Nome do evento e ID para deduplicação)
     if (eventName) {
+      // Block Purchase events — they are exclusively handled by the Stripe webhook
+      // to ensure a single, authoritative server-side send with a stable event_id (session.id).
+      if (WEBHOOK_ONLY_EVENTS.has(eventName)) {
+        console.log(`[Tracking] Evento '${eventName}' bloqueado neste endpoint — tratado apenas pelo webhook Stripe.`);
+        return res.status(200).json({
+          success: true,
+          message: 'Event deferred to webhook handler',
+          _id: eventId || 'deferred',
+        });
+      }
+
       const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress;
       const userAgent = req.headers['user-agent'];
       const fbp = req.cookies['_fbp'];
@@ -44,12 +58,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const ttp = req.cookies['_ttp'];
       const ttclid = req.cookies['ttclid'];
       
-      const generatedEventId = eventId || `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Preserve the client-supplied eventId so client-side and server-side events
+      // share the same ID for deduplication. Only generate a fallback if not provided.
+      const resolvedEventId = eventId || `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Enviar para CAPI em background (não bloquear a resposta)
       sendCapiEvent({
         eventName,
-        eventId: generatedEventId, // Fallback ID se não fornecido
+        eventId: resolvedEventId,
         email: userData?.em,
         phone: userData?.ph,
         firstName: userData?.fn,
@@ -68,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Enviar para TikTok CAPI em background
       sendTikTokCapiEvent({
         eventName,
-        eventId: generatedEventId,
+        eventId: resolvedEventId,
         email: userData?.em,
         phone: userData?.ph,
         clientIp,
@@ -104,4 +120,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       message: 'Failed to track event'
     });
   }
-}
+}

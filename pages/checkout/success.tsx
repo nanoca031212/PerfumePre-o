@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react'
@@ -21,6 +21,8 @@ export default function CheckoutSuccess() {
   })
   const [orderDetails, setOrderDetails] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  // useRef persists across React StrictMode double-mounts (unlike useState)
+  const purchaseTrackedRef = useRef(false)
 
   useEffect(() => {
     // Limpar o carrinho e processar pedido quando session_id ou payment_intent estiver disponível
@@ -34,6 +36,12 @@ export default function CheckoutSuccess() {
   }, [session_id, payment_intent, clearCart])
 
   const processOrder = async (id: string, type: 'session' | 'payment_intent') => {
+    // Guard: prevent double-firing (StrictMode, page reload with same query)
+    if (purchaseTrackedRef.current) {
+      console.log('[Success] Purchase already tracked for this session, skipping.')
+      return
+    }
+
     setProcessing(true)
     setError(null)
 
@@ -58,6 +66,14 @@ export default function CheckoutSuccess() {
       
       console.log('✅ Dados do Stripe recuperados:', stripeData.data)
 
+      // Mark as tracked BEFORE firing to prevent any concurrent re-runs
+      purchaseTrackedRef.current = true
+
+      // Fire TikTok client-side Purchase event.
+      // eventId = session_id → matches the webhook's CAPI event_id for deduplication.
+      // Note: sendServerEvent is intentionally NOT called here for Purchase — the
+      // Stripe webhook handles all server-side CAPI (Facebook + TikTok) with the
+      // same session.id, ensuring proper platform deduplication.
       trackPlaceAnOrder({
         items: stripeData.data.line_items.map((i: any) => ({
           id: i.price?.product || i.id,
@@ -83,6 +99,8 @@ export default function CheckoutSuccess() {
 
     } catch (error: any) {
       console.error('❌ Erro ao processar pedido:', error)
+      // Reset flag on error so user can retry
+      purchaseTrackedRef.current = false
       setError(error.message)
       setProcessingStatus({
         stripe_data: 'error',

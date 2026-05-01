@@ -10,6 +10,34 @@ export const config = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Idempotency guard — prevents re-processing Stripe webhook retries.
+// Uses an in-memory Map with a 24h TTL. In Vercel serverless, each new cold
+// start gets a fresh map, but repeated invocations in the same execution
+// context (the most common retry scenario) are correctly deduplicated.
+// ---------------------------------------------------------------------------
+const processedSessions = new Map<string, number>();
+const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function isAlreadyProcessed(sessionId: string): boolean {
+  const ts = processedSessions.get(sessionId);
+  if (!ts) return false;
+  // Expire stale entries
+  if (Date.now() - ts > IDEMPOTENCY_TTL_MS) {
+    processedSessions.delete(sessionId);
+    return false;
+  }
+  return true;
+}
+
+function markAsProcessed(sessionId: string): void {
+  // Cleanup old entries to avoid unbounded memory growth
+  for (const [id, ts] of processedSessions.entries()) {
+    if (Date.now() - ts > IDEMPOTENCY_TTL_MS) processedSessions.delete(id);
+  }
+  processedSessions.set(sessionId, Date.now());
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -52,8 +80,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       case 'checkout.session.completed':
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // ── Idempotency check ──────────────────────────────────────────────
+        if (isAlreadyProcessed(session.id)) {
+          console.log(`⏭️ Webhook já processado (idempotência): ${session.id}`);
+          return res.status(200).json({ received: true, skipped: true });
+        }
+        // Mark immediately to block concurrent/duplicate calls
+        markAsProcessed(session.id);
+        // ──────────────────────────────────────────────────────────────────
+
         // Aqui você pode atualizar seu banco de dados, enviar emails, etc.
-        console.log('Payment Succeeded:', session);
+        console.log('Payment Succeeded:', session.id);
 
         // Enviar conversão para UTMify via server-side
         try {
@@ -100,7 +137,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           // Facebook CAPI
           await sendCapiEvent({
             eventName: 'Purchase',
-            eventId: session.id, // Chave de deduplicação
+            eventId: session.id, // Chave de deduplicação — deve coincidir com o client-side
             email: customerEmail,
             phone: customerPhone,
             firstName: firstName,
@@ -117,7 +154,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
           // TikTok CAPI
           await sendTikTokCapiEvent({
-            eventName: 'CompletePayment', // Formatado como CompletePayment pelo helper
+            eventName: 'CompletePayment',
             eventId: session.id, // Chave de deduplicação idêntica
             email: customerEmail,
             phone: customerPhone,
@@ -134,21 +171,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.error('❌ Erro ao processar CAPI (Facebook/TikTok):', error);
         }
 
-        console.log('✅ Checkout session completed - client-side tracking ativo');
-
-        // Exemplo: Atualizar status do pedido no banco de dados
-        // await updateOrderStatus(session.metadata.orderId, 'paid');
-
+        console.log('✅ Checkout session completed processado:', session.id);
         break;
 
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('PaymentIntent bem-sucedido:', paymentIntent);
+        console.log('PaymentIntent bem-sucedido:', paymentIntent.id);
         break;
 
       case 'payment_intent.payment_failed':
         const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('PaymentIntent failed:', failedPaymentIntent);
+        console.log('PaymentIntent failed:', failedPaymentIntent.id);
         break;
 
       // Adicione outros eventos conforme necessário
@@ -162,4 +195,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('Erro ao processar webhook:', error);
     return res.status(500).json({ error: error.message });
   }
-}
+}

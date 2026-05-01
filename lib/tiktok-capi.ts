@@ -39,18 +39,22 @@ const formatEventName = (eventName: string): string => {
 };
 
 export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
-  const pixelId = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID;
-  const token = process.env.NEXT_PUBLIC_TIKTOK_TOKEN;
+  // Pixel 1 credentials (required)
+  const pixelId1 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1;
+  const token1 = process.env.TIKTOK_ACCESS_TOKEN_1;
+  // Pixel 2 credentials (optional — only sent if both are configured)
+  const pixelId2 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2;
+  const token2 = process.env.TIKTOK_ACCESS_TOKEN_2;
 
-  if (!pixelId) { 
-    console.warn('⚠️ TikTok CAPI: Nenhum Pixel ID configurado.');
+  if (!pixelId1 || !token1) {
+    console.warn('⚠️ TikTok CAPI: Pixel 1 não configurado (NEXT_PUBLIC_TIKTOK_PIXEL_ID_1 / TIKTOK_ACCESS_TOKEN_1).');
     return;
   }
 
   const tiktokEventName = formatEventName(params.eventName);
   const timestamp = Math.floor(Date.now() / 1000); // Unix timestamp em segundos
   
-  const user = {
+  const user: Record<string, string | undefined> = {
     email: hashData(params.email),
     phone_number: hashData(params.phone),
     external_id: hashData(params.externalId),
@@ -60,7 +64,7 @@ export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
   };
 
   // Remove undefined properties
-  Object.keys(user).forEach(key => user[key as keyof typeof user] === undefined && delete user[key as keyof typeof user]);
+  Object.keys(user).forEach(key => user[key] === undefined && delete user[key]);
 
   const eventData = {
     event: tiktokEventName,
@@ -109,10 +113,14 @@ export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
     }
   };
 
-  const promises = [];
+  const promises: Promise<void>[] = [];
 
-  if (pixelId && token) {
-    promises.push(sendToPixel(pixelId, token, 'Pixel 1'));
+  // Always send to Pixel 1
+  promises.push(sendToPixel(pixelId1, token1, 'Pixel 1'));
+
+  // Send to Pixel 2 if fully configured
+  if (pixelId2 && token2) {
+    promises.push(sendToPixel(pixelId2, token2, 'Pixel 2'));
   }
 
   await Promise.all(promises);
