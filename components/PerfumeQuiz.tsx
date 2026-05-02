@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { useQuizLink } from "@/hooks/useQuizLink";
 
 // Add animated border keyframes for progress
 const progressBarStyles = `
@@ -853,6 +854,8 @@ const CompleteHeader = ({ onUSPClick }: { onUSPClick: () => void }) => {
 export default function PerfumeQuiz() {
   const router = useRouter();
   const { addItem, setIsOpen } = useCart();
+  // URL da loja com UTMs da sessão preservados
+  const storeLink = useQuizLink('/');
   const [gameStarted, setGameStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -1090,7 +1093,7 @@ export default function PerfumeQuiz() {
 
             <div className="w-full max-w-xs pt-4 space-y-4">
               <div className="grid grid-cols-1 gap-4">
-                <Link href="/">
+                <Link href={storeLink}>
                   <button className="w-full bg-black text-white text-lg font-bold py-5 gap-2 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
                     <span>GO TO STORE</span>
                     <svg
