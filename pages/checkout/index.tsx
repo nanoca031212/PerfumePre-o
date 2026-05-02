@@ -24,7 +24,7 @@ import { getPromoTarget, calculateTimeLeft } from "@/lib/timer";
 
 export default function CheckoutPage() {
   const { items, total, totalOriginal } = useCart();
-  const { utmParams } = useUTM();
+  const { utmParams, isLoaded: utmLoaded } = useUTM();
   const pixel = usePixel();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
@@ -70,8 +70,8 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    // Create a Checkout Session only when step is payment
-    if (items.length > 0 && !clientSecret && !loading && step === "payment") {
+    // Create a Checkout Session only when step is payment AND UTMs are loaded
+    if (items.length > 0 && !clientSecret && !loading && step === "payment" && utmLoaded) {
       setLoading(true);
       fetch("/api/stripe/create-checkout", {
         method: "POST",
@@ -106,7 +106,7 @@ export default function CheckoutPage() {
         })
         .finally(() => setLoading(false));
     }
-  }, [items, utmParams, step]);
+  }, [items, utmParams, step, utmLoaded]);
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();

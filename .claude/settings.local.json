@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm ls *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('dependencies',{}\\).get\\('@stripe/react-stripe-js',{}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('peerDeps:', json.dumps\\(d.get\\('peerDependencies',{}\\), indent=2\\)\\); print\\('version:', d.get\\('version'\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/@stripe/react-stripe-js/package.json'\\); console.log\\('version:', p.version\\); console.log\\('peerDeps:', JSON.stringify\\(p.peerDependencies, null, 2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/styled-jsx/package.json'\\); console.log\\('version:', p.version\\); console.log\\('peerDeps:', JSON.stringify\\(p.peerDependencies, null, 2\\)\\)\")",
+      "Bash(findstr /r /s \"useInsertionEffect\" node_modules\\\\styled-jsx\\\\dist\\\\*.js)",
+      "Bash(node -e \"const React = require\\('react'\\); console.log\\('React version:', React.version\\); console.log\\('useInsertionEffect:', typeof React.useInsertionEffect\\); console.log\\('default export:', typeof React.default\\);\")",
+      "Bash(node -e \"const p=require\\('./node_modules/react/package.json'\\); console.log\\('exports:', JSON.stringify\\(p.exports, null, 2\\)\\)\")",
+      "Bash(node -e \"const r=require\\('./node_modules/react/react.react-server.js'\\); console.log\\('useInsertionEffect:', typeof r.useInsertionEffect\\); console.log\\('default:', typeof r.default\\); console.log\\('type:', typeof r\\);\")",
+      "Bash(Select-String '\"version\"')",
+      "Bash(node *)"
+    ]
+  }
+}

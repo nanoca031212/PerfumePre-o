@@ -1,10 +1,11 @@
+'use client';
+
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 import { usePixel } from '@/hooks/usePixel'
 import { useUTM } from '@/hooks/useUTM'
 import { validateAndFixCartItem, initializeAutoCleanup } from '@/lib/cacheCleanup'
 import stripeVariantMapping from '../data/stripe_variant_mapping.json'
 import stripeProductMapping from '../data/stripe_product_mapping.json'
-import { stripe } from '@/lib/stripe'
 
 interface CartItem {
   id: number

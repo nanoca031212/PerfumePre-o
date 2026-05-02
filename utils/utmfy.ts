@@ -3,6 +3,31 @@
 // Taxa de conversão fixa de GBP para BRL
 const GBP_TO_BRL_RATE = 7.0;
 
+// ---------------------------------------------------------------------------
+// Deduplicação server-side: evita envio duplo para a mesma sessão.
+// Map<sessionId, timestamp> com TTL de 24h.
+// ---------------------------------------------------------------------------
+const sentSessions = new Map<string, number>();
+const DEDUP_TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
+
+function isAlreadySent(sessionId: string): boolean {
+  const ts = sentSessions.get(sessionId);
+  if (!ts) return false;
+  if (Date.now() - ts > DEDUP_TTL_MS) {
+    sentSessions.delete(sessionId);
+    return false;
+  }
+  return true;
+}
+
+function markAsSent(sessionId: string): void {
+  // Limpa entradas expiradas
+  sentSessions.forEach((ts, id) => {
+    if (Date.now() - ts > DEDUP_TTL_MS) sentSessions.delete(id);
+  });
+  sentSessions.set(sessionId, Date.now());
+}
+
 export interface UtmfyConversionData {
   orderId: string;
   platform: string;
@@ -42,6 +67,16 @@ export interface UtmfyConversionData {
 }
 
 export async function sendConversionToUtmfy(data: UtmfyConversionData): Promise<boolean> {
+  // ── Deduplicação server-side ──────────────────────────────────────────────
+  // O orderId é o session_id da Stripe (cs_...), que é único por compra.
+  // Se já foi enviado neste processo (ex: reload da página → session-details
+  // → webhook local → sendConversion de novo), ignoramos.
+  if (isAlreadySent(data.orderId)) {
+    console.log(`⏭️ UTMify: envio ignorado (deduplicação) — sessão já processada: ${data.orderId}`);
+    return true;
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   try {
     const utmfyWebhookUrl = process.env.UTMIFY_WEBHOOK_URL;
     const utmfyApiKey = process.env.UTMIFY_API_KEY;
@@ -67,7 +102,9 @@ export async function sendConversionToUtmfy(data: UtmfyConversionData): Promise<
     });
 
     if (response.ok) {
-      console.log('✅ Conversão enviada para Utmfy com sucesso:', data.orderId);
+      // Marca como enviado APENAS após sucesso confirmado pela UTMify
+      markAsSent(data.orderId);
+      console.log('✅ Conversão enviada para UTMify com sucesso:', data.orderId);
       return true;
     } else {
       const errorText = await response.text();
@@ -82,8 +119,7 @@ export async function sendConversionToUtmfy(data: UtmfyConversionData): Promise<
 
 // Função para formatar dados de conversão do Stripe para Utmfy
 export function formatStripeToUtmfy(
-  session: any,
-  eventType: string = 'purchase'
+  session: any
 ): UtmfyConversionData {
   const now = new Date().toISOString();
 
@@ -121,7 +157,7 @@ export function formatStripeToUtmfy(
     },
     products: [
       {
-        id: 'perfume_001',
+        id: 'set' + session.id,
         planId: 'plan_perfume_001',
         planName: 'Perfume Premium',
         name: 'Perfume',

@@ -73,7 +73,20 @@ const nextConfig = {
   },
   
   // Compressão
-  compress: true
+  compress: true,
+
+  // Corrige conflito de casing de pasta no Windows (PerfumeTrack vs Perfumetrack)
+  // Força o Webpack a usar sempre o caminho real/absoluto para react e react-dom,
+  // evitando que dois módulos "diferentes" (só diferindo em caixa) sejam carregados.
+  webpack(config, { isServer }) {
+    const path = require('path');
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+    };
+    return config;
+  },
 }
 
 module.exports = nextConfig

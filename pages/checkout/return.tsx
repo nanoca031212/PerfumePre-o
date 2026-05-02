@@ -34,14 +34,17 @@ export default function CheckoutReturn() {
             if (data.status === 'complete') {
               clearCart();
 
-              // Guard: prevent double-firing on StrictMode re-mounts or reloads
-              if (!purchaseTrackedRef.current) {
+              // ── Deduplicação client-side via localStorage ────────────────
+              // Usa o session_id como chave — único por compra na Stripe.
+              // Evita re-disparar pixels se o cliente recarregar a página.
+              const dedupKey = `tracked_purchase_${Array.isArray(session_id) ? session_id[0] : session_id}`;
+              const alreadyTracked = localStorage.getItem(dedupKey);
+
+              if (!alreadyTracked && !purchaseTrackedRef.current) {
                 purchaseTrackedRef.current = true;
 
                 // Fire Meta client-side Purchase event.
-                // eventID = session_id → must match the webhook's CAPI event_id for deduplication.
-                // UTMify is intentionally NOT sent here — the Stripe webhook already
-                // calls sendConversionToUtmfy server-side with the real session data.
+                // eventID = session_id → deve coincidir com o event_id do CAPI para deduplicação.
                 pixel.purchase({
                   value: data.amount_total / 100,
                   currency: data.currency.toUpperCase(),
@@ -51,13 +54,20 @@ export default function CheckoutReturn() {
                 }, {
                   eventID: Array.isArray(session_id) ? session_id[0] : session_id
                 });
+
+                // Marca no localStorage para evitar re-disparo em reloads
+                localStorage.setItem(dedupKey, Date.now().toString());
+              } else if (alreadyTracked) {
+                console.log('⏭️ Pixel Purchase ignorado (deduplicação localStorage) — sessão já rastreada:', session_id);
               }
+              // ─────────────────────────────────────────────────────────────
             }
           }
         })
         .catch(err => console.error("Error fetching session details:", err));
     }
   }, [session_id]);
+
 
   if (status === 'open') {
     return (

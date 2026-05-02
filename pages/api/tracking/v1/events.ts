@@ -2,9 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { sendCapiEvent } from '@/lib/facebook-capi';
 import { sendTikTokCapiEvent } from '@/lib/tiktok-capi';
 
-// Events that must ONLY come through the Stripe webhook (with proper deduplication via session.id).
-// Blocking them here prevents double-counting when the client-side pixel also fires.
-const WEBHOOK_ONLY_EVENTS = new Set(['Purchase', 'CompletePayment', 'purchase', 'completepayment']);
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Configurar headers CORS
@@ -40,16 +38,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { eventName, eventId, parameters, userData } = body;
 
     if (eventName) {
-      // Block Purchase events — they are exclusively handled by the Stripe webhook
-      // to ensure a single, authoritative server-side send with a stable event_id (session.id).
-      if (WEBHOOK_ONLY_EVENTS.has(eventName)) {
-        console.log(`[Tracking] Evento '${eventName}' bloqueado neste endpoint — tratado apenas pelo webhook Stripe.`);
-        return res.status(200).json({
-          success: true,
-          message: 'Event deferred to webhook handler',
-          _id: eventId || 'deferred',
-        });
-      }
 
       const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress;
       const userAgent = req.headers['user-agent'];
