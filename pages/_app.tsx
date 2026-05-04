@@ -8,6 +8,8 @@ import { usePixel } from '@/hooks/usePixel'
 import { useUTM } from '@/hooks/useUTM'
 import { useRouter } from 'next/router'
 import TikTokPixel from '@/components/TikTokPixel'
+import { appendUTMsToUrl } from '@/utils/utm-helper'
+import { useEffect } from 'react'
 
 export default function App({ Component, pageProps }: AppProps) {
   // Inicializa o rastreamento de página
@@ -17,6 +19,20 @@ export default function App({ Component, pageProps }: AppProps) {
   useUTM();
   
   const router = useRouter()
+  
+  // Efeito para garantir que UTMs persistam na URL em todas as navegações
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const currentUrl = router.asPath;
+      const urlWithUtms = appendUTMsToUrl(currentUrl);
+      
+      // Se a URL mudou (porque UTMs foram adicionados), atualiza sem adicionar ao histórico
+      if (urlWithUtms !== currentUrl) {
+        router.replace(urlWithUtms, undefined, { shallow: true });
+      }
+    }
+  }, [router.asPath]);
+
   const isQuizPage = router.pathname === '/quiz'
   const isCheckoutPage = router.pathname.startsWith('/checkout')
 

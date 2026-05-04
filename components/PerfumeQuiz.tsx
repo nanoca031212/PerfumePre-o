@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { appendUTMsToUrl } from "@/utils/utm-helper";
 
 // Add animated border keyframes for progress
 const progressBarStyles = `
@@ -963,7 +964,7 @@ export default function PerfumeQuiz() {
 
     // Redirecionar para a loja, mas apenas se não estivermos nela
     if (router.asPath !== "/") {
-      router.push("/");
+      router.push(appendUTMsToUrl("/"));
     } else {
       // Se já estiver na home, apenas rolar para o topo
       window.scrollTo({ top: 0, behavior: "smooth" });
