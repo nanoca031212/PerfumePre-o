@@ -80,6 +80,7 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           items: items.map((item) => ({
+            id: item.id?.toString(),
             stripeId: item.stripeId,
             quantity: item.quantity,
             title: item.title,

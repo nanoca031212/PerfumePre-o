@@ -92,19 +92,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Aqui você pode atualizar seu banco de dados, enviar emails, etc.
         console.log('Payment Succeeded:', session.id);
 
-        // Enviar conversão para UTMify via server-side
+        // Enviar conversão para UTMify com nomes reais dos produtos
         try {
           const { formatStripeToUtmfy, sendConversionToUtmfy } = await import('@/utils/utmfy');
-          const utmfyData = formatStripeToUtmfy(session);
+          const { getProductByHandle } = await import('@/lib/products');
+          const ids = (session.metadata?.content_ids || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+          const resolvedNames: Record<string, string> = {};
+          for (const id of ids) {
+            const product = getProductByHandle(id);
+            if (product) resolvedNames[id] = product.title;
+          }
+          const utmfyData = formatStripeToUtmfy(session, resolvedNames);
           const utmfySuccess = await sendConversionToUtmfy(utmfyData);
-
           if (utmfySuccess) {
-            console.log('✅ Conversão enviada para UTMify com sucesso (server-side):', session.id);
+            console.log('✅ UTMify enviado com sucesso (webhook):', session.id);
           } else {
-            console.warn('⚠️ Falha ao enviar conversão para UTMify (server-side):', session.id);
+            console.warn('⚠️ Falha ao enviar UTMify (webhook):', session.id);
           }
         } catch (error) {
-          console.error('❌ Erro ao processar UTMify (server-side):', error);
+          console.error('❌ Erro ao processar UTMify (webhook):', error);
         }
 
         // Enviar conversão para Facebook CAPI e TikTok CAPI (Redundância + Deduplicação)
@@ -134,38 +140,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const userAgent = session.metadata?.user_agent;
           const clientIp = session.metadata?.client_ip;
 
+          // content_ids gravados no checkout — mesmos usados nos browser pixel events
+          const contentIds = session.metadata?.content_ids
+            ? session.metadata.content_ids.split(',').filter(Boolean)
+            : undefined;
+
+          // sourceUrl: embedded checkout usa return_url (não success_url)
+          const sourceUrl =
+            session.return_url?.replace(/\?session_id=.*/, '') ||
+            session.success_url ||
+            process.env.NEXT_PUBLIC_SITE_URL ||
+            'https://fragancestps.shop';
+
+          const purchaseValue = session.amount_total ? session.amount_total / 100 : 0;
+          const purchaseCurrency = session.currency?.toUpperCase() || 'GBP';
+
           // Facebook CAPI
           await sendCapiEvent({
             eventName: 'Purchase',
-            eventId: session.id, // Chave de deduplicação — deve coincidir com o client-side
+            eventId: session.id,
             email: customerEmail,
             phone: customerPhone,
-            firstName: firstName,
-            lastName: lastName,
+            firstName,
+            lastName,
             fbp,
             fbc,
             userAgent,
             clientIp,
             externalId: session.id,
-            value: session.amount_total ? session.amount_total / 100 : 0,
-            currency: session.currency?.toUpperCase() || 'GBP',
-            sourceUrl: session.success_url || 'https://theperfumeuk.shop',
+            value: purchaseValue,
+            currency: purchaseCurrency,
+            sourceUrl,
+            contentIds,
+            contentType: 'product',
           });
 
           // TikTok CAPI
           await sendTikTokCapiEvent({
             eventName: 'CompletePayment',
-            eventId: session.id, // Chave de deduplicação idêntica
+            eventId: session.id,
             email: customerEmail,
             phone: customerPhone,
             clientIp,
             userAgent,
             ttp,
             ttclid,
-            value: session.amount_total ? session.amount_total / 100 : 0,
-            currency: session.currency?.toUpperCase() || 'GBP',
-            sourceUrl: session.success_url || 'https://theperfumeuk.shop',
+            value: purchaseValue,
+            currency: purchaseCurrency,
+            sourceUrl,
             externalId: session.id,
+            contentIds,
+            contentType: 'product',
           });
         } catch (error) {
           console.error('❌ Erro ao processar CAPI (Facebook/TikTok):', error);

@@ -119,7 +119,8 @@ export async function sendConversionToUtmfy(data: UtmfyConversionData): Promise<
 
 // Função para formatar dados de conversão do Stripe para Utmfy
 export function formatStripeToUtmfy(
-  session: any
+  session: any,
+  resolvedNames: Record<string, string> = {}
 ): UtmfyConversionData {
   const now = new Date().toISOString();
 
@@ -155,15 +156,39 @@ export function formatStripeToUtmfy(
       gatewayFeeInCents: Math.round(amountTotalBRL * 0.029), // Estimativa de 2.9%
       userCommissionInCents: amountTotalBRL ? amountTotalBRL - Math.round(amountTotalBRL * 0.029) : 0, // Valor atribuído ao produtor/afiliado
     },
-    products: [
-      {
-        id: 'set' + session.id,
-        planId: 'plan_perfume_001',
-        planName: 'Perfume Premium',
-        name: 'Perfume',
-        quantity: 1,
-        priceInCents: amountTotalBRL,
-      }
-    ],
+    products: buildProducts(session.metadata, amountTotalBRL, resolvedNames),
   };
+}
+
+function buildProducts(
+  metadata: Record<string, string> | null,
+  totalBRL: number,
+  resolvedNames: Record<string, string> = {}
+) {
+  const ids = (metadata?.content_ids || '').split(',').map(s => s.trim()).filter(Boolean);
+
+  if (ids.length === 0) {
+    return [{
+      id: 'perfume_set',
+      planId: 'plan_perfume_001',
+      planName: 'Set',
+      name: 'Set',
+      quantity: 1,
+      priceInCents: totalBRL,
+    }];
+  }
+
+  const priceEach = Math.floor(totalBRL / ids.length);
+
+  return ids.map((id, i) => {
+    const name = resolvedNames[id] || (id.match(/(\d+)$/) ? `Set-${id.match(/(\d+)$/)![1]}` : id);
+    return {
+      id,
+      planId: `plan_${id}`,
+      planName: name,
+      name,
+      quantity: 1,
+      priceInCents: i === ids.length - 1 ? totalBRL - priceEach * (ids.length - 1) : priceEach,
+    };
+  });
 }

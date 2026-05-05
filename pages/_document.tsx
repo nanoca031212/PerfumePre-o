@@ -66,7 +66,6 @@ export default function Document() {
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
               fbq('init', '${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_1 || '1201843863809192'}');
-              ${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_2 ? `fbq('init', '${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_2}');` : ''}
               fbq('track', 'PageView');
             `
           }}
@@ -105,7 +104,7 @@ export default function Document() {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.pixelId = "68acccb997c810406d624392";
+              window.pixelId = "${process.env.NEXT_PUBLIC_UTMIFY_PIXEL_ID || '68acccb997c810406d624392'}";
               var a = document.createElement("script");
               a.setAttribute("async", "");
               a.setAttribute("defer", "");
@@ -119,12 +118,28 @@ export default function Document() {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.tikTokPixelId = "69ec0ebe445f98a508d463f9";
+              window.tikTokPixelId = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID || '69ec0ebe445f98a508d463f9'}";
               var b = document.createElement("script");
               b.setAttribute("async", "");
               b.setAttribute("defer", "");
               b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
               document.head.appendChild(b);
+            `
+          }}
+        />
+
+        {/* UTMify Pixel Script 3 (Facebook) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.facebookPixelId = "${process.env.NEXT_PUBLIC_UTMIFY_FACEBOOK_PIXEL_ID || ''}";
+              if (window.facebookPixelId) {
+                var c = document.createElement("script");
+                c.setAttribute("async", "");
+                c.setAttribute("defer", "");
+                c.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-facebook.js");
+                document.head.appendChild(c);
+              }
             `
           }}
         />

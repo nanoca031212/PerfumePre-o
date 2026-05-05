@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
+import { getProductByHandle } from '@/lib/products';
+import { formatStripeToUtmfy, sendConversionToUtmfy } from '@/utils/utmfy';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2022-11-15' as any, // fallback for typescript compilation, though Stripe Node SDK 19.x uses string literals
@@ -67,24 +69,41 @@ export default async function handler(
         : session.payment_intent,
     };
 
-    // Simular o Webhook do Stripe para o Backend Local (CRM/UTMify)
-    // Isso é necessário porque o Stripe não envia webhooks para o localhost sem o CLI
-    try {
-      const protocol = req.headers['x-forwarded-proto'] || 'http';
-      const host = req.headers.host || 'localhost:3000';
-      const webhookUrl = `${protocol}://${host}/api/stripe/webhook`;
-      
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'checkout.session.completed',
-          data: { object: session }
-        })
-      });
-      console.log(`✅ Evento de checkout enviado para o webhook local: ${webhookUrl}`);
-    } catch (e: any) {
-      console.warn('⚠️ Não foi possível sincronizar com o webhook local:', e.message);
+    // Bate os content_ids com a estrutura de produtos e envia para UTMify com nomes reais.
+    if (session.payment_status === 'paid') {
+      try {
+        const ids = (session.metadata?.content_ids || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+        const resolvedNames: Record<string, string> = {};
+        for (const id of ids) {
+          const product = getProductByHandle(id);
+          if (product) resolvedNames[id] = product.title;
+        }
+        const utmfyData = formatStripeToUtmfy(session, resolvedNames);
+        await sendConversionToUtmfy(utmfyData);
+      } catch (err: any) {
+        console.warn('⚠️ UTMify via session-details falhou:', err.message);
+      }
+    }
+
+    // Simula o webhook localmente — APENAS em dev (sem Stripe CLI).
+    // Em produção o webhook real já dispara; triggerar aqui causaria double-processing.
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const host = req.headers.host || 'localhost:3000';
+        const webhookUrl = `${protocol}://${host}/api/stripe/webhook`;
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'checkout.session.completed',
+            data: { object: session }
+          })
+        });
+        console.log(`✅ Webhook local simulado: ${webhookUrl}`);
+      } catch (e: any) {
+        console.warn('⚠️ Não foi possível simular webhook local:', e.message);
+      }
     }
 
     console.log('📊 Dados da sessão Stripe recuperados:', {

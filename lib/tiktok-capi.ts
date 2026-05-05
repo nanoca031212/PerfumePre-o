@@ -85,7 +85,7 @@ export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
   };
 
   // Enviar para um pixel específico
-  const sendToPixel = async (pixelCode: string, accessToken: string, pixelLabel: string) => {
+  const sendToPixel = async (pixelCode: string, accessToken: string, pixelLabel: string, attempts = 3): Promise<void> => {
     try {
       const payload = {
         pixel_code: pixelCode,
@@ -108,7 +108,12 @@ export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
       } else {
         console.log(`✅ TikTok CAPI Evento '${tiktokEventName}' enviado com sucesso (${pixelLabel}). Event ID: ${params.eventId}`);
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (attempts > 1 && (error.code === 'UND_ERR_SOCKET' || error.message?.includes('fetch failed') || error.message?.includes('socket'))) {
+        console.warn(`⚠️ Erro de conexão TikTok CAPI (${pixelLabel}). Tentando novamente em 1s... (${attempts - 1} tentativas restantes)`);
+        await new Promise(res => setTimeout(res, 1000));
+        return sendToPixel(pixelCode, accessToken, pixelLabel, attempts - 1);
+      }
       console.error(`❌ Erro ao enviar para TikTok CAPI (${pixelLabel}):`, error);
     }
   };

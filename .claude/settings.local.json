@@ -11,7 +11,28 @@
       "Bash(node -e \"const p=require\\('./node_modules/react/package.json'\\); console.log\\('exports:', JSON.stringify\\(p.exports, null, 2\\)\\)\")",
       "Bash(node -e \"const r=require\\('./node_modules/react/react.react-server.js'\\); console.log\\('useInsertionEffect:', typeof r.useInsertionEffect\\); console.log\\('default:', typeof r.default\\); console.log\\('type:', typeof r\\);\")",
       "Bash(Select-String '\"version\"')",
-      "Bash(node *)"
+      "Bash(node *)",
+      "WebFetch(domain:docs.utmify.com.br)",
+      "WebSearch",
+      "WebFetch(domain:utmify.help.center)",
+      "WebFetch(domain:www.scribd.com)",
+      "WebFetch(domain:ajuda.xgrow.com)",
+      "WebFetch(domain:ajuda.cakto.com.br)",
+      "WebFetch(domain:help.monetizze.com.br)",
+      "WebFetch(domain:chatwoot.herospark.com)",
+      "WebFetch(domain:ajuda.herospark.com)",
+      "WebFetch(domain:rifei.com.br)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebFetch(domain:docs.centralcart.com.br)",
+      "WebFetch(domain:docs.centralcart.com)",
+      "WebFetch(domain:fragancestps.shop)",
+      "WebFetch(domain:utmify.com.br)",
+      "WebFetch(domain:app.utmify.com.br)",
+      "WebFetch(domain:cdn.utmify.com.br)",
+      "WebFetch(domain:developers.facebook.com)",
+      "WebFetch(domain:ads.tiktok.com)",
+      "WebFetch(domain:business-api.tiktok.com)",
+      "Bash(npx tsc *)"
     ]
   }
 }

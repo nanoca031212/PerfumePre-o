@@ -18,6 +18,7 @@ import Image from "next/image";
 import { getPromoTarget, calculateTimeLeft } from "@/lib/timer";
 import { useRouter } from "next/router";
 import { trackViewContent, trackAddToCart } from "@/lib/tiktokEvents";
+import { trackEvent } from "@/lib/utils";
 
 interface ProductPageProps {
   product: Product;
@@ -39,10 +40,16 @@ export default function ProductPage({
 
   useEffect(() => {
     if (product) {
-      trackViewContent({
-        id: product.id,
-        name: product.title,
-        price: Number(product.price.regular) || 49.99
+      const price = Number(product.price.regular) || 49.99;
+      // TikTok browser ViewContent
+      trackViewContent({ id: product.id, name: product.title, price });
+      // Meta browser ViewContent + Meta CAPI via /api/tracking/v1/events
+      trackEvent('ViewContent', {
+        value: price,
+        currency: 'GBP',
+        content_ids: [product.id.toString()],
+        content_type: 'product',
+        content_name: product.title,
       });
     }
   }, [product]);

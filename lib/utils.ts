@@ -9,7 +9,6 @@ export function cn(...inputs: ClassValue[]) {
 
 // Configurações dos pixels usando variáveis de ambiente NEXT_PUBLIC_ (seguras para frontend)
 export const FACEBOOK_PIXEL_ID_1 = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_1
-export const FACEBOOK_PIXEL_ID_2 = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_2
 export const TIKTOK_PIXEL_ID_1 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1
 export const TIKTOK_PIXEL_ID_2 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2
 export const UTMIFY_PIXEL_ID = process.env.NEXT_PUBLIC_UTMIFY_PIXEL_ID
@@ -71,16 +70,16 @@ export function trackEvent(eventName: string, parameters?: Record<string, any>, 
       }
     }
 
-    // TikTok Pixel 1
+    // TikTok Pixels (ttq.track broadcasts to all loaded instances)
     if (typeof (window as any).ttq !== 'undefined' && (window as any).ttq && typeof (window as any).ttq.track === 'function' && TIKTOK_PIXEL_ID_1) {
       try {
-        (window as any).ttq.track(eventName, parameters, { event_id: eventID }) // TikTok suporta event_id? Verificar doc, mas mal não faz
-        console.log(`[TikTok Pixel ${TIKTOK_PIXEL_ID_1}] Tracked event:`, eventName, parameters)
+        (window as any).ttq.track(eventName, parameters, { event_id: eventID })
+        console.log(`[TikTok Pixels] Tracked event:`, eventName, parameters)
       } catch (error) {
-        console.error('[TikTok Pixel 1] Error tracking event:', error)
+        console.error('[TikTok Pixels] Error tracking event:', error)
       }
     } else if (TIKTOK_PIXEL_ID_1) {
-      console.warn('[TikTok Pixel 1] ttq not available or not loaded yet')
+      console.warn('[TikTok Pixels] ttq not available or not loaded yet')
     }
 
     // UTMify Pixel (se disponível)
@@ -119,7 +118,7 @@ export function trackQuizStep(step: string, questionNumber?: number, isCorrect?:
   
   // Log detalhado para debug
   console.log(`[Quiz Step Tracking] ${stepKey}:`, parameters)
-  console.log(`[Pixels] Meta 1: ${FACEBOOK_PIXEL_ID_1 || 'Not configured'}, Meta 2: ${FACEBOOK_PIXEL_ID_2 || 'Not configured'}, TikTok 1: ${TIKTOK_PIXEL_ID_1 || 'Not configured'}, TikTok 2: ${TIKTOK_PIXEL_ID_2 || 'Not configured'}`)
+  console.log(`[Pixels] Meta: ${FACEBOOK_PIXEL_ID_1 || 'Not configured'}, TikTok 1: ${TIKTOK_PIXEL_ID_1 || 'Not configured'}, TikTok 2: ${TIKTOK_PIXEL_ID_2 || 'Not configured'}`)
   
   trackEvent(stepKey, parameters, undefined, false) // Não permite duplicatas por padrão
 }

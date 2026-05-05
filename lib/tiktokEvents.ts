@@ -40,18 +40,19 @@ export function trackInitiateCheckout(cart: {
   });
 }
 
-// 4. PlaceAnOrder — disparar na página de confirmação de pedido
-export function trackPlaceAnOrder(order: {
+// 4. CompletePayment — disparar na página de confirmação de pedido
+// Deve usar o mesmo nome que o CAPI (CompletePayment) para deduplicação funcionar.
+export function trackCompletePayment(order: {
   items: Array<{ id: string | number; name: string; price: number; quantity: number }>;
   total: number;
   orderId?: string;
 }) {
   if (typeof window === 'undefined' || !window.ttq) return;
-  window.ttq.track('PlaceAnOrder', {
+  window.ttq.track('CompletePayment', {
     contents: order.items.map(i => ({ content_id: i.id, content_name: i.name, content_type: 'product', quantity: i.quantity, price: i.price })),
     value: order.total,
     currency: 'GBP',
-    // event_id inside properties — TikTok ttq.track only accepts 2 args
+  }, {
     event_id: order.orderId,
   });
 }

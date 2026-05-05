@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { stripe } from '@/lib/stripe';
 
 interface CartItem {
+  id?: string;
   stripeId?: string;
   quantity: number;
   title: string;
@@ -24,9 +25,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const origin = req.headers.origin || 'https://theperfumeuk.shop';
 
-    // Extrair dados do cliente para rastreamento (Facebook CAPI)
+    // Extrair dados do cliente para rastreamento (Facebook CAPI + TikTok CAPI)
     const fbp = req.cookies._fbp || '';
     const fbc = req.cookies._fbc || '';
+    const ttp = req.cookies._ttp || '';
+    const ttclid = req.cookies.ttclid || '';
     const userAgent = req.headers['user-agent'] || '';
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
 
@@ -67,6 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
     });
 
+    // IDs dos produtos para CAPI (mesmo ID usado nos browser pixel events)
+    const contentIds = items.map(i => i.id || i.handle).filter(Boolean).join(',');
+    const productNames = items.map(i => i.title).filter(Boolean).join(',');
+
     // Criar sessão de checkout
     // @ts-ignore - automatic_payment_methods existe na API mas o TS pode estar desatualizado
     const session = await stripe.checkout.sessions.create({
@@ -91,9 +98,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         src: utmParams?.src || '',
         sck: utmParams?.sck || '',
         xcod: utmParams?.xcod || '',
+        content_ids: contentIds.substring(0, 500),
         fbp,
         fbc,
-        user_agent: userAgent.substring(0, 500), // Stripe tem limite de 500 chars
+        ttp,
+        ttclid,
+        user_agent: userAgent.substring(0, 500),
         client_ip: clientIp
       }
     } as any);

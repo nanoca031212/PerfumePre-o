@@ -1,7 +1,7 @@
 // Função para enviar conversões para UTMify via client-side
 
-// Taxa de conversão fixa de GBP para BRL
-const GBP_TO_BRL_RATE = 7.4;
+// Taxa de conversão fixa de GBP para BRL (manter igual a utils/utmfy.ts)
+const GBP_TO_BRL_RATE = 7.0;
 
 interface ClientSideUtmfyData {
   orderId: string;
