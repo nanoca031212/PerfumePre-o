@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
-import { trackPlaceAnOrder } from '@/lib/tiktokEvents'
+import { trackCompletePayment } from '@/lib/tiktokEvents'
 
 interface ProcessingStatus {
   stripe_data: 'loading' | 'success' | 'error';
@@ -74,7 +74,7 @@ export default function CheckoutSuccess() {
       // Note: sendServerEvent is intentionally NOT called here for Purchase — the
       // Stripe webhook handles all server-side CAPI (Facebook + TikTok) with the
       // same session.id, ensuring proper platform deduplication.
-      trackPlaceAnOrder({
+      trackCompletePayment({
         items: stripeData.data.line_items.map((i: any) => ({
           id: i.price?.product || i.id,
           name: i.description,
