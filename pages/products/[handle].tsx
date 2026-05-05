@@ -17,7 +17,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { getPromoTarget, calculateTimeLeft } from "@/lib/timer";
 import { useRouter } from "next/router";
-import { trackViewContent, trackAddToCart } from "@/lib/tiktokEvents";
 import { trackEvent } from "@/lib/utils";
 
 interface ProductPageProps {
@@ -41,9 +40,6 @@ export default function ProductPage({
   useEffect(() => {
     if (product) {
       const price = Number(product.price.regular) || 49.99;
-      // TikTok browser ViewContent
-      trackViewContent({ id: product.id, name: product.title, price });
-      // Meta browser ViewContent + Meta CAPI via /api/tracking/v1/events
       trackEvent('ViewContent', {
         value: price,
         currency: 'GBP',
@@ -106,13 +102,6 @@ export default function ProductPage({
 
   const handleBundleAddToCart = async (selection: BundleSelection) => {
     try {
-      trackAddToCart({
-        id: product.id, // ID of the bundle/promotion
-        name: `Bundle Promotion: ${selection.fragrances.map(f => f.title).join(', ')}`,
-        price: selection.totalPrice, // e.g. 49.99
-        quantity: 1
-      });
-
       clearCart();
       const stripeProductMapping =
         await import("@/data/stripe_product_mapping.json");

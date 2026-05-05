@@ -4,7 +4,6 @@ import { useCart } from '@/contexts/CartContext';
 import Head from 'next/head';
 import { usePixel } from '@/hooks/usePixel';
 import { retryFailedUtmfyConversions } from '@/lib/clientSideUtmfy';
-import { trackCompletePayment } from '@/lib/tiktokEvents';
 import Image from 'next/image';
 
 export default function CheckoutReturn() {
@@ -46,7 +45,8 @@ export default function CheckoutReturn() {
 
                 const sid = Array.isArray(session_id) ? session_id[0] : session_id as string;
 
-                // Meta browser Purchase — eventID = session_id para dedup com CAPI
+                // Meta → fbq('Purchase') | TikTok → ttq('CompletePayment')
+                // eventID = session_id para dedup com CAPI
                 pixel.purchase({
                   value: data.amount_total / 100,
                   currency: data.currency.toUpperCase(),
@@ -55,18 +55,6 @@ export default function CheckoutReturn() {
                   num_items: data.line_items.reduce((acc: number, item: any) => acc + item.quantity, 0)
                 }, {
                   eventID: sid
-                });
-
-                // TikTok browser CompletePayment — mesmo nome do CAPI para deduplicação correta
-                trackCompletePayment({
-                  items: data.line_items.map((item: any) => ({
-                    id: item.product_id || item.id,
-                    name: item.product_name || 'Perfume',
-                    price: (item.amount_total / 100) / (item.quantity || 1),
-                    quantity: item.quantity || 1
-                  })),
-                  total: data.amount_total / 100,
-                  orderId: sid
                 });
 
                 // Marca no localStorage para evitar re-disparo em reloads
