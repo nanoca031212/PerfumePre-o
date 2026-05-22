@@ -137,37 +137,55 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const recalculateBundlePrices = (items: CartItem[]): CartItem[] => {
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-    const promo3 = 69 / 3;
-    const promo5 = 119 / 6;
+    const promo3Price = 69 / 3;   // £23 each — 3-unit bundle
+    const promo6Price = 119 / 6;  // ~£19.83 each — 6-unit bundle
 
     if (totalQuantity <= 2) {
       return items.map(item => ({ ...item, price: item.regularPrice || item.price }));
     }
-    
-    if (totalQuantity === 3) {
-      return items.map(item => ({ ...item, price: promo3 }));
-    }
-    
-    if (totalQuantity === 4) {
-      // Regra de 4: 3 unidades em promo3, 1 unidade em preço cheio.
-      // Tentamos identificar qual item deve ser o "extra".
-      // Se viemos de um estado de 4 itens, um deles já terá um preço médio superior a promo3.
-      let extraItemIndex = items.findIndex(item => item.price > promo3 + 0.1);
-      // Se não encontrarmos (ex: vindo de 5 itens onde todos eram promo5), usamos o último item.
-      if (extraItemIndex === -1) extraItemIndex = items.length - 1;
 
-      return items.map((item, idx) => {
+    if (totalQuantity === 3) {
+      return items.map(item => ({ ...item, price: promo3Price }));
+    }
+
+    if (totalQuantity === 4 || totalQuantity === 5) {
+      // Units 1-3 at promo3Price; units 4 and 5 at full (regular) price.
+      let remainingPromo = 3;
+      return items.map(item => {
         const regularPrice = item.regularPrice || item.price;
-        if (idx === extraItemIndex) {
-          const newPrice = ((item.quantity - 1) * promo3 + regularPrice) / item.quantity;
-          return { ...item, price: newPrice };
+        if (remainingPromo >= item.quantity) {
+          remainingPromo -= item.quantity;
+          return { ...item, price: promo3Price };
+        } else if (remainingPromo > 0) {
+          const unitsAtPromo = remainingPromo;
+          const unitsAtFull = item.quantity - unitsAtPromo;
+          remainingPromo = 0;
+          const blendedPrice = (unitsAtPromo * promo3Price + unitsAtFull * regularPrice) / item.quantity;
+          return { ...item, price: blendedPrice };
+        } else {
+          return { ...item, price: regularPrice };
         }
-        return { ...item, price: promo3 };
       });
     }
 
-    if (totalQuantity >= 5) {
-      return items.map(item => ({ ...item, price: promo5 }));
+    if (totalQuantity >= 6) {
+      // First 6 units at promo6Price; units 7+ at full price.
+      let remainingPromo = 6;
+      return items.map(item => {
+        const regularPrice = item.regularPrice || item.price;
+        if (remainingPromo >= item.quantity) {
+          remainingPromo -= item.quantity;
+          return { ...item, price: promo6Price };
+        } else if (remainingPromo > 0) {
+          const unitsAtPromo = remainingPromo;
+          const unitsAtFull = item.quantity - unitsAtPromo;
+          remainingPromo = 0;
+          const blendedPrice = (unitsAtPromo * promo6Price + unitsAtFull * regularPrice) / item.quantity;
+          return { ...item, price: blendedPrice };
+        } else {
+          return { ...item, price: regularPrice };
+        }
+      });
     }
 
     return items;
