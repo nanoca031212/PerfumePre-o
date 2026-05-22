@@ -32,7 +32,7 @@ export default function BaseCollection({
   const { bundleSlot, returnTo } = router.query;
   const isSelectionMode =
     typeof bundleSlot === "string" && typeof returnTo === "string";
-  const { isOpen: isBagOpen, setIsOpen: setBagOpen } = useCart();
+  const { isOpen: isBagOpen, setIsOpen: setBagOpen, clearCart } = useCart();
 
   const [remaining, setRemaining] = useState(0);
   const [packName, setPackName] = useState("");
@@ -46,6 +46,21 @@ export default function BaseCollection({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const lastScrollY = useRef(0);
   const collapseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const didResetRef = useRef(false);
+
+  // Reset bundle and cart every time the page mounts fresh (outside selection mode)
+  useEffect(() => {
+    if (!router.isReady || didResetRef.current || isSelectionMode) return;
+
+    didResetRef.current = true;
+
+    try {
+      localStorage.removeItem("bundleState");
+      window.dispatchEvent(new Event("bundleStateUpdated"));
+    } catch (e) {}
+    clearCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, isSelectionMode]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -121,26 +136,6 @@ export default function BaseCollection({
     } catch (e) {}
   };
 
-  const hasResetRef = useRef(false);
-
-  // Handle reset query parameter and native home page navigation
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    if (router.query.reset === "true" || (router.pathname === "/" && !isSelectionMode && !hasResetRef.current)) {
-      try {
-        localStorage.removeItem("bundleState");
-        window.dispatchEvent(new Event("bundleStateUpdated"));
-        hasResetRef.current = true;
-        
-        // Clean up the URL parameter if present
-        if (router.query.reset === "true") {
-          const { reset, ...rest } = router.query;
-          router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
-        }
-      } catch (e) {}
-    }
-  }, [router.isReady, router.query.reset, router.pathname, isSelectionMode, router]);
 
   useEffect(() => {
     calculateRemaining();
@@ -405,13 +400,13 @@ export default function BaseCollection({
                   ? "Continue adicionando!"
                   : selectedCount === 3
                     ? "🎉 Discount Unlocked!"
-                    : "Mix & match — 3 perfumes por £69"}
+                    : "Mix & match — 3 perfumes por £69.99"}
             </h5>
             <div className="text-sm text-gray-500 mt-1">
               {selectedCount < 3
                 ? `${3 - selectedCount} perfumes missing. Unlock the discount.`
                 : selectedCount === 3
-                  ? `Congratulations, you've unlocked the discount 3 perfumes for £69. Select more 3 perfumes to unlock the maximum discount.`
+                  ? `Congratulations, you've unlocked the discount 3 perfumes for £69.99. Select more 3 perfumes to unlock the maximum discount.`
                   : selectedCount < 6
                     ? `${6 - selectedCount} more perfume(s) to unlock the maximum discount.`
                     : `Congratulations, you've unlocked the maximum discount!`}

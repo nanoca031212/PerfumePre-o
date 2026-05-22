@@ -50,7 +50,7 @@ export default function HeaderTPS({
       {/* Promotional Banner */}
       {!hidePromoBanner && (
         <div className="bg-tps-red text-white text-center px-4 py-2 text-[15px] font-normal">
-          Mix & match any 3 fragrances — £69 for all three
+          Mix & match any 3 fragrances — £69.99 for all three
         </div>
       )}
 
@@ -60,7 +60,7 @@ export default function HeaderTPS({
           <div className="flex items-center justify-between h-16 pl-2">
             {/* Logo */}
             <Link
-              href="/?reset=true"
+              href="/"
               className="flex items-center"
               suppressHydrationWarning
             >
@@ -121,7 +121,7 @@ export default function HeaderTPS({
             <nav className="flex overflow-x-auto scrollbar-none">
               {/* Men's Collection */}
               <Link
-                href="/collections/mens?reset=true"
+                href="/collections/mens"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
                 suppressHydrationWarning
@@ -131,7 +131,7 @@ export default function HeaderTPS({
 
               {/* Women's Collection */}
               <Link
-                href="/collections/womens?reset=true"
+                href="/collections/womens"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
                 suppressHydrationWarning
@@ -141,7 +141,7 @@ export default function HeaderTPS({
 
               {/* Gift Sets */}
               <Link
-                href="/collections/gift-sets?reset=true"
+                href="/collections/gift-sets"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
                 suppressHydrationWarning
@@ -151,7 +151,7 @@ export default function HeaderTPS({
 
               {/* Special Offers */}
               <Link
-                href="/?reset=true"
+                href="/"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
                 suppressHydrationWarning

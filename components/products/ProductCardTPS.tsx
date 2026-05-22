@@ -44,12 +44,15 @@ export default function ProductCardTPS({
           setSelectionIndices(indices.join(", "));
         } else {
           setIsBundleEmpty(true);
+          setSelectionIndices("");
         }
       } else {
         setIsBundleEmpty(true);
+        setSelectionIndices("");
       }
     } catch (e) {
       setIsBundleEmpty(true);
+      setSelectionIndices("");
     }
   };
 
@@ -307,22 +310,23 @@ export default function ProductCardTPS({
           itemPrice = regularPrice;
           itemOriginalPrice = originalPrice;
         } else if (count === 3) {
-          // 3 perfumes: £69 dividido por 3
-          itemPrice = 69 / 3;
+          itemPrice = 69.99 / 3;
           itemOriginalPrice = regularPrice;
         } else if (count >= 4 && count < 6) {
-          // 4-5 perfumes: primeiros 3 com desconto de £69, 4º e 5º no preço cheio
           if (i < 3) {
-            itemPrice = 69 / 3;
+            itemPrice = 69.99 / 3;
             itemOriginalPrice = regularPrice;
           } else {
             itemPrice = regularPrice;
             itemOriginalPrice = originalPrice;
           }
-        } else {
-          // 6 perfumes: £119 dividido por 6
-          itemPrice = 119 / 6;
+        } else if (count === 6) {
+          itemPrice = 119.99 / 6;
           itemOriginalPrice = regularPrice;
+        } else {
+          // 7+ units: first 6 at bundle price, rest at full price
+          itemPrice = i < 6 ? 119.99 / 6 : regularPrice;
+          itemOriginalPrice = i < 6 ? regularPrice : originalPrice;
         }
 
         const cartItem = {
@@ -428,7 +432,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Mix & match any 3 fragrances — £69 for all three
+            Mix & match any 3 fragrances — £69.99 for all three
           </div>
 
           {/* Badge - Canto superior direito */}
