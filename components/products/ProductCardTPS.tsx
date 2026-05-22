@@ -174,7 +174,7 @@ export default function ProductCardTPS({
       const finalCount = finalSelections.filter((p: any) => p !== null).length;
       if (!isSelectionMode) {
         await addBundleToCart(finalSelections, state.packType);
-        
+
         if (finalCount === 3 && state.packType === "trio") {
           const firstProduct = finalSelections[0];
           if (firstProduct) {
@@ -182,7 +182,7 @@ export default function ProductCardTPS({
             return;
           }
         }
-        
+
         if (finalCount === 6) {
           setIsOpen(true);
         }
@@ -281,8 +281,12 @@ export default function ProductCardTPS({
 
       clearCart();
 
-      const stripeProductMapping = await import("@/data/stripe_product_mapping.json");
-      const productMapping = stripeProductMapping.default as Record<string, { price_id: string }>;
+      const stripeProductMapping =
+        await import("@/data/stripe_product_mapping.json");
+      const productMapping = stripeProductMapping.default as Record<
+        string,
+        { price_id: string }
+      >;
 
       const count = nonNullSelections.length;
 
@@ -292,7 +296,8 @@ export default function ProductCardTPS({
 
         const stripeId = productMapping[frag.handle]?.price_id || "";
         const regularPrice = Number(frag.price?.regular) || 26.0;
-        const originalPrice = Number(frag.price?.original_price) || regularPrice * 2;
+        const originalPrice =
+          Number(frag.price?.original_price) || regularPrice * 2;
 
         let itemPrice: number;
         let itemOriginalPrice: number;
@@ -302,21 +307,21 @@ export default function ProductCardTPS({
           itemPrice = regularPrice;
           itemOriginalPrice = originalPrice;
         } else if (count === 3) {
-          // 3 perfumes: £49.99 dividido por 3
-          itemPrice = 49.99 / 3;
+          // 3 perfumes: £69 dividido por 3
+          itemPrice = 69 / 3;
           itemOriginalPrice = regularPrice;
         } else if (count >= 4 && count < 6) {
-          // 4-5 perfumes: primeiros 3 com desconto de £49.99, 4º e 5º no preço cheio
+          // 4-5 perfumes: primeiros 3 com desconto de £69, 4º e 5º no preço cheio
           if (i < 3) {
-            itemPrice = 49.99 / 3;
+            itemPrice = 69 / 3;
             itemOriginalPrice = regularPrice;
           } else {
             itemPrice = regularPrice;
             itemOriginalPrice = originalPrice;
           }
         } else {
-          // 6 perfumes: £99.99 dividido por 6
-          itemPrice = 99.99 / 6;
+          // 6 perfumes: £119 dividido por 6
+          itemPrice = 119 / 6;
           itemOriginalPrice = regularPrice;
         }
 
@@ -331,7 +336,8 @@ export default function ProductCardTPS({
           regularPrice,
           image: Array.isArray(frag.images)
             ? frag.images[0]
-            : (frag.images as any)?.main?.[0] || "/images/placeholder-product.jpg",
+            : (frag.images as any)?.main?.[0] ||
+              "/images/placeholder-product.jpg",
         };
         addItem(cartItem, 1);
       }
@@ -344,7 +350,10 @@ export default function ProductCardTPS({
     e.preventDefault();
     try {
       const stored = localStorage.getItem("bundleState");
-      if (!stored) { router.push("/checkout"); return; }
+      if (!stored) {
+        router.push("/checkout");
+        return;
+      }
       const state = JSON.parse(stored);
       await addBundleToCart(state.selections || [], state.packType);
       setIsOpen(true);
@@ -419,7 +428,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Mix & match any 3 fragrances — £49.99 for all three
+            Mix & match any 3 fragrances — £69 for all three
           </div>
 
           {/* Badge - Canto superior direito */}
@@ -503,8 +512,8 @@ export default function ProductCardTPS({
             </button>
           )}
         </div>
-        {!isSelectionMode && (
-          isBundleEmpty ? (
+        {!isSelectionMode &&
+          (isBundleEmpty ? (
             <Link
               href={
                 router.pathname === "/"
@@ -526,8 +535,7 @@ export default function ProductCardTPS({
             >
               finish order
             </button>
-          )
-        )}
+          ))}
       </div>
     </div>
   );

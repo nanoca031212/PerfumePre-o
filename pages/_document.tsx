@@ -89,8 +89,8 @@ export default function Document() {
                   var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
                   ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t,n.onerror=function(){console.warn('TikTok Pixel failed to load')};e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
                   
-                  if ('${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1}') ttq.load('${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1}');
-                  if ('${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2}') ttq.load('${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2}');
+                  var pid1='${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1 || ''}'; if(pid1) ttq.load(pid1);
+                  var pid2='${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2 || ''}'; if(pid2) ttq.load(pid2);
                   ttq.page();
                 } catch (error) {
                   console.warn('TikTok Pixel initialization failed:', error);

@@ -1044,7 +1044,7 @@ export default function PerfumeQuiz() {
 
   const discount = correctAnswers === 6 ? 120.0 : correctAnswers * 20;
   const originalPrice = 169.99;
-  const finalPrice = Math.max(originalPrice - discount, 49.99);
+  const finalPrice = Math.max(originalPrice - discount, 69);
 
   useTrackVSLView(); // Comentado junto com o VSL
 

@@ -171,3 +171,4 @@ fix_*.py
 map_*.py
 scrape_*.py
 resolve_*.py
+.env*.local

@@ -137,8 +137,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const recalculateBundlePrices = (items: CartItem[]): CartItem[] => {
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-    const promo3 = 49.99 / 3;
-    const promo5 = 99.99 / 5;
+    const promo3 = 69 / 3;
+    const promo5 = 119 / 6;
 
     if (totalQuantity <= 2) {
       return items.map(item => ({ ...item, price: item.regularPrice || item.price }));

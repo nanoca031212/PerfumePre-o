@@ -12,14 +12,17 @@
 > Análise baseada na inspeção direta dos scripts CDN.
 
 ### Script 1 — `utms/latest.js` (v2.3.12)
+
 **URL**: `https://cdn.utmify.com.br/scripts/utms/latest.js`
 **O que faz**:
+
 - Captura parâmetros UTM da URL e os persiste em `localStorage` com TTL de 7 dias
 - Injeta UTMs automaticamente em todos os links `<a>`, formulários e iframes da página
 - Detecta links de WhatsApp (`wa.me`, `api.whatsapp.com`) e injeta IDs de rastreamento
 - Observa mutações no DOM para capturar elementos adicionados dinamicamente
 
 **Parâmetros capturados**:
+
 - `utm_source`, `utm_campaign`, `utm_medium`, `utm_content`, `utm_term`, `utm_id`
 - `gclid`, `gbraid`, `wbraid` — Google Ads
 - `ttclid` — TikTok
@@ -27,6 +30,7 @@
 - `xcod`, `sck`, `src`, `cid` — parâmetros internos UTMify
 
 **Configuração via `data-attributes`**:
+
 ```html
 <script src="https://cdn.utmify.com.br/scripts/utms/latest.js"
   data-utmify-prevent-xcod-sck=""   ← previne sobrescrever xcod/sck existentes
@@ -39,10 +43,12 @@
 ---
 
 ### Script 2 — `pixel.js` (Meta-focused)
+
 **URL**: `https://cdn.utmify.com.br/scripts/pixel/pixel.js`
 **Ativa com**: `window.pixelId = "68acccb997c810406d624392"` antes do script
 
 **O que faz**:
+
 - Rastreador de leads e conversões integrado com Meta Pixel
 - Detecta e valida campos de formulário (email, telefone, nome) e auto-preenche com dados do localStorage
 - Monitora cliques em links e botões para detectar ações de checkout, lead, add-to-cart
@@ -57,15 +63,17 @@
 
 **É necessário em prod?** ⚠️ DEPENDE — este script dispara os MESMOS eventos que seu código já dispara (`ViewContent`, `AddToCart`, `InitiateCheckout` via `fbq`/`ttq`). Risco de **duplicação de eventos**. Avaliar se a deduplicação via `event_id` está funcionando ou se deve ser desabilitado.
 
-**ID atual (hardcoded no _document.tsx)**: `68acccb997c810406d624392`
+**ID atual (hardcoded no \_document.tsx)**: `68acccb997c810406d624392`
 
 ---
 
 ### Script 3 — `pixel-tiktok.js` (TikTok-focused)
+
 **URL**: `https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js`
 **Ativa com**: `window.tikTokPixelId = "69ec0ebe445f98a508d463f9"` antes do script
 
 **O que faz**:
+
 - Versão do pixel.js focada em TikTok (`ttq`) em vez de Meta (`fbq`)
 - Mesmos eventos automáticos: `PageView`, `ViewContent`, `InitiateCheckout`, `Lead`, `AddToCart`
 - Coleta dados de leads e envia para servidores da UTMify em `utmify.com.br`
@@ -74,17 +82,19 @@
 
 **É necessário em prod?** ⚠️ DEPENDE — mesmo raciocínio do `pixel.js`. Cria risco de duplicate events no TikTok. O `tikTokPixelId` é diferente do `NEXT_PUBLIC_UTMIFY_PIXEL_ID` — são IDs de rastreamento interno da UTMify, não IDs do TikTok Pixel da sua conta.
 
-**ID atual (hardcoded no _document.tsx)**: `69ec0ebe445f98a508d463f9`
+**ID atual (hardcoded no \_document.tsx)**: `69ec0ebe445f98a508d463f9`
 
 ---
 
 ### API de Conversões (Webhook)
+
 **URL**: `UTMIFY_WEBHOOK_URL` = `https://api.utmify.com.br/api-credentials/orders`
 **Auth**: `x-api-token: <UTMIFY_API_KEY>` no header
 
 **O que faz**: Registra uma venda/conversão no painel da UTMify com os UTMs rastreados, valor, e dados do cliente. A UTMify usa isso para atribuição de conversões às campanhas.
 
 **Dados obrigatórios no payload**:
+
 ```json
 {
   "orderId": "cs_live_...",          // Único por compra
@@ -125,23 +135,38 @@
 ## 2. Configuração Atual no Projeto
 
 ### `_document.tsx`
+
 ```tsx
-{/* Script 1 — UTMs */}
-<script src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+{
+  /* Script 1 — UTMs */
+}
+<script
+  src="https://cdn.utmify.com.br/scripts/utms/latest.js"
   data-utmify-prevent-xcod-sck=""
   data-utmify-prevent-subids=""
-  async defer />
+  async
+  defer
+/>;
 
-{/* Script 2 — pixel.js (Meta) */}
-window.pixelId = "68acccb997c810406d624392";  // hardcoded
-<script src="https://cdn.utmify.com.br/scripts/pixel/pixel.js" async defer />
+{
+  /* Script 2 — pixel.js (Meta) */
+}
+window.pixelId = "68acccb997c810406d624392"; // hardcoded
+<script src="https://cdn.utmify.com.br/scripts/pixel/pixel.js" async defer />;
 
-{/* Script 3 — pixel-tiktok.js */}
-window.tikTokPixelId = "69ec0ebe445f98a508d463f9";  // hardcoded
-<script src="https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js" async defer />
+{
+  /* Script 3 — pixel-tiktok.js */
+}
+window.tikTokPixelId = "69ec0ebe445f98a508d463f9"; // hardcoded
+<script
+  src="https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js"
+  async
+  defer
+/>;
 ```
 
 ### Servidor (Stripe Webhook)
+
 ```
 checkout.session.completed
   → formatStripeToUtmfy(session)
@@ -155,24 +180,24 @@ checkout.session.completed
 
 ## 3. Fluxo do Funil
 
-| Etapa | Responsável | Dados UTM |
-|-------|-------------|-----------|
-| Usuário chega via anúncio | `utms/latest.js` captura UTMs da URL | utm_source, utm_medium, utm_campaign, src, sck, xcod, ttclid, fbclid |
-| UTMs persistidos | `localStorage` com TTL 7 dias | Sobrevive à navegação entre páginas |
-| UTMs lidos pelo hook | `hooks/useUTM.ts` lê `sessionStorage` | Repassados para o checkout |
-| Checkout criado | `api/stripe/create-checkout.ts` | UTMs salvos em `session.metadata` |
-| Pagamento confirmado | Stripe Webhook | `session.metadata` → UTMify API |
-| Conversão registrada | UTMify painel | Atribuição da venda ao anúncio |
+| Etapa                     | Responsável                           | Dados UTM                                                            |
+| ------------------------- | ------------------------------------- | -------------------------------------------------------------------- |
+| Usuário chega via anúncio | `utms/latest.js` captura UTMs da URL  | utm_source, utm_medium, utm_campaign, src, sck, xcod, ttclid, fbclid |
+| UTMs persistidos          | `localStorage` com TTL 7 dias         | Sobrevive à navegação entre páginas                                  |
+| UTMs lidos pelo hook      | `hooks/useUTM.ts` lê `sessionStorage` | Repassados para o checkout                                           |
+| Checkout criado           | `api/stripe/create-checkout.ts`       | UTMs salvos em `session.metadata`                                    |
+| Pagamento confirmado      | Stripe Webhook                        | `session.metadata` → UTMify API                                      |
+| Conversão registrada      | UTMify painel                         | Atribuição da venda ao anúncio                                       |
 
 ---
 
 ## 4. Variáveis de Ambiente Necessárias
 
-| Variável | Obrigatória | Atual (.env) | Descrição |
-|----------|------------|--------------|-----------|
-| `UTMIFY_WEBHOOK_URL` | ✅ SIM | ✅ `https://api.utmify.com.br/api-credentials/orders` | URL do webhook de conversões |
-| `UTMIFY_API_KEY` | ✅ SIM | ✅ `stQsGj8ix1z1u7CL8zZsCt2LFPzGRZpVHKYU` | API Key para autenticar |
-| `NEXT_PUBLIC_UTMIFY_PIXEL_ID` | ➖ Referência | ✅ `69cea73e7335cd4341d54570` | ID referenciado em utils.ts mas não usado ativamente |
+| Variável                      | Obrigatória   | Atual (.env)                                          | Descrição                                            |
+| ----------------------------- | ------------- | ----------------------------------------------------- | ---------------------------------------------------- |
+| `UTMIFY_WEBHOOK_URL`          | ✅ SIM        | ✅ `https://api.utmify.com.br/api-credentials/orders` | URL do webhook de conversões                         |
+| `UTMIFY_API_KEY`              | ✅ SIM        | ✅ `stQsGj8ix1z1u7CL8zZsCt2LFPzGRZpVHKYU`             | API Key para autenticar                              |
+| `NEXT_PUBLIC_UTMIFY_PIXEL_ID` | ➖ Referência | ✅ `69cea73e7335cd4341d54570`                         | ID referenciado em utils.ts mas não usado ativamente |
 
 > Os IDs `68acccb997c810406d624392` (pixel.js) e `69ec0ebe445f98a508d463f9` (pixel-tiktok.js)
 > estão **hardcoded** em `_document.tsx`. Não são variáveis de ambiente. Verificar se são os IDs corretos.
@@ -182,17 +207,20 @@ checkout.session.completed
 ## 5. Bugs / Problemas Conhecidos
 
 ### BUG-UTM-1: Taxa de câmbio GBP→BRL inconsistente
+
 - **Arquivo 1**: `utils/utmfy.ts:4` → `GBP_TO_BRL_RATE = 7.0`
 - **Arquivo 2**: `lib/clientSideUtmfy.ts:4` → `GBP_TO_BRL_RATE = 7.4`
 - **Impacto**: Conversões registradas na UTMify com valores diferentes dependendo do caminho
 - **Fix**: Extrair para constante compartilhada ou variável de ambiente `GBP_TO_BRL_RATE`
 
 ### BUG-UTM-2: pixelId e tikTokPixelId hardcoded
+
 - **Arquivo**: `_document.tsx:108` e `_document.tsx:120`
 - **Impacto**: IDs não gerenciáveis por variável de ambiente
 - **Fix**: Mover para `NEXT_PUBLIC_UTMIFY_PIXEL_ID` e `NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID`
 
 ### BUG-UTM-3: pixel.js e pixel-tiktok.js disparam eventos duplicados
+
 - **Situação**: Ambos os scripts monitoram o DOM e disparam `ViewContent`, `AddToCart`,
   `InitiateCheckout` via `fbq` e `ttq` automaticamente.
 - **Risco**: Quando seu código também dispara esses eventos via `lib/utils.ts:trackEvent`,
@@ -203,12 +231,14 @@ checkout.session.completed
   2. Desabilitar os eventos automáticos deles via configuração (se a UTMify suportar)
 
 ### BUG-UTM-4: sendClientSideConversionToUtmfy parece dead code
+
 - **Arquivo**: `lib/clientSideUtmfy.ts:44`
 - **Situação**: A função `sendClientSideConversionToUtmfy` está definida mas não é chamada em nenhuma página ativa
 - **`checkout/return.tsx`**: importa apenas `retryFailedUtmfyConversions`, não `sendClientSideConversionToUtmfy`
 - **Conclusão**: O envio de conversão UTMify é feito exclusivamente via Stripe Webhook (server-side) — correto
 
 ### BUG-UTM-5: src/sck/xcod do useUTM não chegam ao checkout em todos os caminhos
+
 - **Situação**: `hooks/useUTM.ts` captura `src`, `sck`, `xcod` da URL e salva em `sessionStorage`
 - **`checkout/index.tsx:90`**: envia `utmParams` completo para `/api/stripe/create-checkout`
 - **`create-checkout.ts:91-93`**: salva `src`, `sck`, `xcod` no `session.metadata` ✅
@@ -246,7 +276,7 @@ checkout.session.completed
   - Log: `⏭️ UTMify: envio ignorado (deduplicação) — sessão já processada`
 
 - [ ] **Taxa de câmbio GBP→BRL**
-  - Compra de £49.99 → valor na UTMify deve ser ~R$349,93 (com taxa 7.0)
+  - Compra de £69 → valor na UTMify deve ser ~R$240 (com taxa 7.0)
   - Verificar se o valor no painel UTMify bate com o esperado
 
 - [ ] **pixel.js e pixel-tiktok.js**
@@ -261,7 +291,7 @@ checkout.session.completed
 - [ ] UTMs chegam: acessar via link com UTMs → verificar localStorage da produção via DevTools
 - [ ] UTMs no Stripe: completar compra de teste → verificar metadata no Stripe Dashboard (live)
 - [ ] Conversão no painel UTMify: verificar que a compra aparece com UTMs corretos
-- [ ] Verificar taxa de câmbio aplicada: valor em BRL deve ser razoável (£49.99 → ~R$350)
+- [ ] Verificar taxa de câmbio aplicada: valor em BRL deve ser razoável (£69 → ~R$240)
 - [ ] Verificar se pixel.js causa duplicatas no Meta Events Manager
 - [ ] Verificar se pixel-tiktok.js causa duplicatas no TikTok Events Manager
 - [ ] Confirmar IDs hardcoded (`68acccb997c810406d624392`, `69ec0ebe445f98a508d463f9`) são os corretos para esta loja
@@ -270,11 +300,11 @@ checkout.session.completed
 
 ## 7. Recomendação de Scripts em Produção
 
-| Script | Manter? | Justificativa |
-|--------|---------|---------------|
-| `utms/latest.js` | ✅ SIM | Essencial para captura e persistência dos UTMs |
-| `pixel.js` | ⚠️ AVALIAR | Duplica eventos já disparados pelo seu código; risco real |
-| `pixel-tiktok.js` | ⚠️ AVALIAR | Mesmo risco que pixel.js para TikTok |
+| Script            | Manter?    | Justificativa                                             |
+| ----------------- | ---------- | --------------------------------------------------------- |
+| `utms/latest.js`  | ✅ SIM     | Essencial para captura e persistência dos UTMs            |
+| `pixel.js`        | ⚠️ AVALIAR | Duplica eventos já disparados pelo seu código; risco real |
+| `pixel-tiktok.js` | ⚠️ AVALIAR | Mesmo risco que pixel.js para TikTok                      |
 
 Se decidir manter pixel.js e pixel-tiktok.js, implementar deduplicação rigorosa com `event_id` em todos os eventos manualmente disparados para garantir que Meta/TikTok removam os duplicados.
 

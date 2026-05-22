@@ -37,9 +37,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const lineItems = items.map(item => {
       const price = Number(item.price);
       if (isNaN(price) || price <= 0) {
-        console.warn(`Preço inválido para o item ${item.title}: ${item.price}. Usando fallback 49.99`);
+        console.warn(`Preço inválido para o item ${item.title}: ${item.price}. Usando fallback 69`);
       }
-      const finalPrice = (!isNaN(price) && price > 0) ? price : 49.99;
+      const finalPrice = (!isNaN(price) && price > 0) ? price : 69;
 
       // Extrair número do set do handle
       let setName = 'Set';

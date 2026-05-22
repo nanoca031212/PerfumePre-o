@@ -39,12 +39,12 @@ export default function ProductPage({
 
   useEffect(() => {
     if (product) {
-      const price = Number(product.price.regular) || 49.99;
-      trackEvent('ViewContent', {
+      const price = Number(product.price.regular) || 69;
+      trackEvent("ViewContent", {
         value: price,
-        currency: 'GBP',
+        currency: "GBP",
         content_ids: [product.id.toString()],
-        content_type: 'product',
+        content_type: "product",
         content_name: product.title,
       });
     }
@@ -70,15 +70,20 @@ export default function ProductPage({
   // Synchronized Countdown timer logic
   useEffect(() => {
     const target = getPromoTarget();
-    
+
     // Initial calculation
     setTimeLeft(calculateTimeLeft(target));
 
     const timer = setInterval(() => {
       const remaining = calculateTimeLeft(target);
       setTimeLeft(remaining);
-      
-      if (remaining.days === 0 && remaining.hours === 0 && remaining.minutes === 0 && remaining.seconds === 0) {
+
+      if (
+        remaining.days === 0 &&
+        remaining.hours === 0 &&
+        remaining.minutes === 0 &&
+        remaining.seconds === 0
+      ) {
         clearInterval(timer);
       }
     }, 1000);
@@ -284,7 +289,7 @@ export default function ProductPage({
             {/* Discount Banner */}
             <div className="border border-black w-full font-bold text-center py-2 mb-4">
               <span className="font-bold  text-black">
-                Pick any 3 fragrances you love for only £49.99
+                Pick any 3 fragrances you love for only £69
               </span>
             </div>
 
