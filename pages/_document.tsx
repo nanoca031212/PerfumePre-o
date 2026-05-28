@@ -123,6 +123,16 @@ export default function Document() {
               b.setAttribute("async", "");
               b.setAttribute("defer", "");
               b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
+              b.onload = function() {
+                var pid2 = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID_2 || ''}";
+                if (pid2) {
+                  window.tikTokPixelId = pid2;
+                  var b2 = document.createElement("script");
+                  b2.setAttribute("async", "");
+                  b2.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
+                  document.head.appendChild(b2);
+                }
+              };
               document.head.appendChild(b);
             `
           }}
