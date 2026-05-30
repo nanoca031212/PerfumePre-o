@@ -117,14 +117,12 @@ export default function Document() {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.tikTokPixelId = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID || ''}";
-              if (window.tikTokPixelId) {
-                var b = document.createElement("script");
-                b.setAttribute("async", "");
-                b.setAttribute("defer", "");
-                b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
-                document.head.appendChild(b);
-              }
+              window.tikTokPixelId = "6a19d76e773f591f04aa5841";
+              var a = document.createElement("script");
+              a.setAttribute("async", "");
+              a.setAttribute("defer", "");
+              a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
+              document.head.appendChild(a);
             `
           }}
         />
