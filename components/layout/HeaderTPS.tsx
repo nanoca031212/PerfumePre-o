@@ -50,7 +50,7 @@ export default function HeaderTPS({
       {/* Promotional Banner */}
       {!hidePromoBanner && (
         <div className="bg-tps-red text-white text-center px-4 py-2 text-[15px] font-normal">
-          Mix & match any 3 fragrances — £69.99 for all three
+          Mix & match any 3 fragrances — £89.99 for all three
         </div>
       )}
 

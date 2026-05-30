@@ -10,7 +10,6 @@ export function cn(...inputs: ClassValue[]) {
 // Configurações dos pixels usando variáveis de ambiente NEXT_PUBLIC_ (seguras para frontend)
 export const FACEBOOK_PIXEL_ID_1 = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_1
 export const TIKTOK_PIXEL_ID_1 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1
-export const TIKTOK_PIXEL_ID_2 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2
 export const UTMIFY_PIXEL_ID = process.env.NEXT_PUBLIC_UTMIFY_PIXEL_ID
 
 // Armazenamento global de dados do usuário para CAPI
@@ -133,7 +132,7 @@ export function trackQuizStep(step: string, questionNumber?: number, isCorrect?:
   
   // Log detalhado para debug
   console.log(`[Quiz Step Tracking] ${stepKey}:`, parameters)
-  console.log(`[Pixels] Meta: ${FACEBOOK_PIXEL_ID_1 || 'Not configured'}, TikTok 1: ${TIKTOK_PIXEL_ID_1 || 'Not configured'}, TikTok 2: ${TIKTOK_PIXEL_ID_2 || 'Not configured'}`)
+  console.log(`[Pixels] Meta: ${FACEBOOK_PIXEL_ID_1 || 'Not configured'}, TikTok: ${TIKTOK_PIXEL_ID_1 || 'Not configured'}`)
   
   trackEvent(stepKey, parameters, undefined, false) // Não permite duplicatas por padrão
 }

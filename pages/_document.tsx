@@ -90,7 +90,6 @@ export default function Document() {
                   ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t,n.onerror=function(){console.warn('TikTok Pixel failed to load')};e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
                   
                   var pid1='${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1 || ''}'; if(pid1) ttq.load(pid1);
-                  var pid2='${process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2 || ''}'; if(pid2) ttq.load(pid2);
                   ttq.page();
                 } catch (error) {
                   console.warn('TikTok Pixel initialization failed:', error);
@@ -118,22 +117,14 @@ export default function Document() {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.tikTokPixelId = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID || '69ec0ebe445f98a508d463f9'}";
-              var b = document.createElement("script");
-              b.setAttribute("async", "");
-              b.setAttribute("defer", "");
-              b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
-              b.onload = function() {
-                var pid2 = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID_2 || ''}";
-                if (pid2) {
-                  window.tikTokPixelId = pid2;
-                  var b2 = document.createElement("script");
-                  b2.setAttribute("async", "");
-                  b2.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
-                  document.head.appendChild(b2);
-                }
-              };
-              document.head.appendChild(b);
+              window.tikTokPixelId = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID || ''}";
+              if (window.tikTokPixelId) {
+                var b = document.createElement("script");
+                b.setAttribute("async", "");
+                b.setAttribute("defer", "");
+                b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-tiktok.js");
+                document.head.appendChild(b);
+              }
             `
           }}
         />

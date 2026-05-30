@@ -39,15 +39,11 @@ const formatEventName = (eventName: string): string => {
 };
 
 export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
-  // Pixel 1 credentials (required)
   const pixelId1 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_1;
   const token1 = process.env.TIKTOK_ACCESS_TOKEN_1;
-  // Pixel 2 credentials (optional — only sent if both are configured)
-  const pixelId2 = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID_2;
-  const token2 = process.env.TIKTOK_ACCESS_TOKEN_2;
 
   if (!pixelId1 || !token1) {
-    console.warn('⚠️ TikTok CAPI: Pixel 1 não configurado (NEXT_PUBLIC_TIKTOK_PIXEL_ID_1 / TIKTOK_ACCESS_TOKEN_1).');
+    console.warn('⚠️ TikTok CAPI: Pixel não configurado (NEXT_PUBLIC_TIKTOK_PIXEL_ID_1 / TIKTOK_ACCESS_TOKEN_1).');
     return;
   }
 
@@ -118,15 +114,5 @@ export const sendTikTokCapiEvent = async (params: TikTokCapiEventParams) => {
     }
   };
 
-  const promises: Promise<void>[] = [];
-
-  // Always send to Pixel 1
-  promises.push(sendToPixel(pixelId1, token1, 'Pixel 1'));
-
-  // Send to Pixel 2 if fully configured
-  if (pixelId2 && token2) {
-    promises.push(sendToPixel(pixelId2, token2, 'Pixel 2'));
-  }
-
-  await Promise.all(promises);
+  await sendToPixel(pixelId1, token1, 'Pixel 1');
 };

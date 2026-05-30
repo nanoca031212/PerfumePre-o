@@ -310,22 +310,22 @@ export default function ProductCardTPS({
           itemPrice = regularPrice;
           itemOriginalPrice = originalPrice;
         } else if (count === 3) {
-          itemPrice = 69.99 / 3;
+          itemPrice = 89.99 / 3;
           itemOriginalPrice = regularPrice;
         } else if (count >= 4 && count < 6) {
           if (i < 3) {
-            itemPrice = 69.99 / 3;
+            itemPrice = 89.99 / 3;
             itemOriginalPrice = regularPrice;
           } else {
             itemPrice = regularPrice;
             itemOriginalPrice = originalPrice;
           }
         } else if (count === 6) {
-          itemPrice = 119.99 / 6;
+          itemPrice = 178.99 / 6;
           itemOriginalPrice = regularPrice;
         } else {
           // 7+ units: first 6 at bundle price, rest at full price
-          itemPrice = i < 6 ? 119.99 / 6 : regularPrice;
+          itemPrice = i < 6 ? 178.99 / 6 : regularPrice;
           itemOriginalPrice = i < 6 ? regularPrice : originalPrice;
         }
 
@@ -432,7 +432,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Mix & match any 3 fragrances — £69.99 for all three
+            Mix & match any 3 fragrances — £89.99 for all three
           </div>
 
           {/* Badge - Canto superior direito */}
