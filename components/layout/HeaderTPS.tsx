@@ -50,7 +50,7 @@ export default function HeaderTPS({
       {/* Promotional Banner */}
       {!hidePromoBanner && (
         <div className="bg-tps-red text-white text-center px-4 py-2 text-[12px] font-bold">
-          Summer deal buy 2 fragrances for $99.99 & get the 3rd FREE
+          Summer deal buy 2 fragrances for $89.99 & get the 3rd FREE
         </div>
       )}
 

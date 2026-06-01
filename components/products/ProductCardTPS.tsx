@@ -432,7 +432,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Summer deal buy 2 fragrances for $99.99 & get the 3rd FREE
+            Summer deal buy 2 fragrances for $89.99 & get the 3rd FREE
           </div>
 
           {/* Badge - Canto superior direito */}
