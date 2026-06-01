@@ -403,7 +403,7 @@ export default function BaseCollection({
             </h5>
             <div className="text-sm text-gray-500 mt-1">
               {selectedCount < 3
-                ? `Buy any ${3 - selectedCount} fragrances for just $99.99 and get the 3rd FREE`
+                ? `Buy any ${3 - selectedCount} fragrances for just $89.99 and get the 3rd FREE`
                 : selectedCount === 3
                   ? `Congratulations, you've unlocked the discount 3 perfumes for £89.99. Select more 3 perfumes to unlock the maximum discount.`
                   : selectedCount < 6
