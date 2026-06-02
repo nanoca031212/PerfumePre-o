@@ -120,33 +120,30 @@ export default function HeaderTPS({
           <div className="container mx-auto">
             <nav className="flex overflow-x-auto scrollbar-none">
               {/* Special Offers */}
-              <Link
+              <a
                 href="/"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
-                suppressHydrationWarning
               >
                 SPECIAL OFFERS
-              </Link>
+              </a>
               {/* Men's Collection */}
-              <Link
+              <a
                 href="/collections/mens"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
-                suppressHydrationWarning
               >
                 MEN'S
-              </Link>
+              </a>
 
               {/* Women's Collection */}
-              <Link
+              <a
                 href="/collections/womens"
                 className="flex-shrink-0 px-6 py-4 text-white text-sm font-medium uppercase tracking-wider
                        hover:bg-white hover:bg-opacity-10 transition-colors whitespace-nowrap"
-                suppressHydrationWarning
               >
                 WOMEN'S
-              </Link>
+              </a>
             </nav>
           </div>
         </div>

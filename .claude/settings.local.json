@@ -39,7 +39,9 @@
       "Bash(git remote *)",
       "Bash(git fetch *)",
       "Bash(git add *)",
-      "Bash(git show *)"
+      "Bash(git show *)",
+      "Bash(grep -E \"\\\\.\\(md|txt\\)$\")",
+      "Bash(xargs grep -l \"trackViewContent\\\\|trackAddToCart\\\\|ViewContent\\\\|AddToCart\")"
     ]
   }
 }
