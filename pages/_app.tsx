@@ -25,13 +25,30 @@ export default function App({ Component, pageProps }: AppProps) {
     if (typeof window !== 'undefined') {
       const currentUrl = router.asPath;
       const urlWithUtms = appendUTMsToUrl(currentUrl);
-      
+
       // Se a URL mudou (porque UTMs foram adicionados), atualiza sem adicionar ao histórico
       if (urlWithUtms !== currentUrl) {
         router.replace(urlWithUtms, undefined, { shallow: true });
       }
     }
   }, [router.asPath]);
+
+  // Força reload completo ao navegar para uma página diferente
+  useEffect(() => {
+    const handleRouteChangeStart = (url: string) => {
+      const destPath = url.split('?')[0].split('#')[0];
+      const currentPath = window.location.pathname;
+      if (destPath !== currentPath) {
+        window.location.href = url;
+        throw 'routeChange aborted to force full reload';
+      }
+    };
+
+    router.events.on('routeChangeStart', handleRouteChangeStart);
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChangeStart);
+    };
+  }, []);
 
   const isQuizPage = router.pathname === '/quiz'
   const isCheckoutPage = router.pathname.startsWith('/checkout')
