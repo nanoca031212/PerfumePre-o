@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import { X, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
-import { useRouter } from 'next/router'
 import { validateAndFixCartItem } from '@/lib/cacheCleanup'
 import { trackInitiateCheckout } from '@/lib/tiktokEvents'
 
@@ -12,7 +11,6 @@ interface ShoppingBagProps {
 
 export default function ShoppingBag({ isOpen, onClose }: ShoppingBagProps) {
   const { items, removeItem, updateQuantity, total, totalOriginal } = useCart()
-  const router = useRouter()
 
   const panelClasses = `fixed bottom-0 left-0 right-0 h-[85vh] bg-white shadow-xl rounded-t-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-y-0' : 'translate-y-full'}`
 
@@ -50,8 +48,11 @@ export default function ShoppingBag({ isOpen, onClose }: ShoppingBagProps) {
         total: total
       });
 
-      onClose(); // Fechar o carrinho
-      router.push(`/checkout${window.location.search}`);
+      const productsParam = items.map(item => `${item.handle}:${item.quantity}`).join(',');
+      const params = new URLSearchParams(window.location.search);
+      params.set('products', productsParam);
+      onClose();
+      window.location.href = `/checkout?${params.toString()}`;
 
     } catch (error) {
       console.error('❌ Erro no checkout:', error);

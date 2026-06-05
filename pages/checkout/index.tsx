@@ -11,6 +11,8 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import HeaderTPS from "@/components/layout/HeaderTPS";
 import FooterTPS from "@/components/layout/FooterTPS";
+import { getAllProducts } from "@/lib/products";
+import stripeProductMapping from "@/data/stripe_product_mapping.json";
 
 import { Timer, Info, ShoppingBag } from "lucide-react";
 
@@ -22,10 +24,62 @@ const stripePromise = loadStripe(
 
 import { getPromoTarget, calculateTimeLeft } from "@/lib/timer";
 
+type CheckoutItem = {
+  id: number;
+  handle: string;
+  stripeId: string;
+  title: string;
+  subtitle: string;
+  price: number;
+  image: string;
+  quantity: number;
+  originalPrice: number;
+  regularPrice: number;
+};
+
+function recalculateBundlePrices(items: CheckoutItem[]): CheckoutItem[] {
+  const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  const p3 = 89.99 / 3;
+  const p6 = 178.99 / 6;
+
+  if (totalQty < 3) return items;
+
+  if (totalQty >= 6) {
+    let rem = 6;
+    return items.map(item => {
+      const full = item.regularPrice;
+      if (rem >= item.quantity) { rem -= item.quantity; return { ...item, price: p6 }; }
+      if (rem > 0) {
+        const blended = (rem * p6 + (item.quantity - rem) * full) / item.quantity;
+        rem = 0;
+        return { ...item, price: blended };
+      }
+      return { ...item, price: full };
+    });
+  }
+
+  if (totalQty >= 3) {
+    let rem = 3;
+    return items.map(item => {
+      const full = item.regularPrice;
+      if (rem >= item.quantity) { rem -= item.quantity; return { ...item, price: p3 }; }
+      if (rem > 0) {
+        const blended = (rem * p3 + (item.quantity - rem) * full) / item.quantity;
+        rem = 0;
+        return { ...item, price: blended };
+      }
+      return { ...item, price: full };
+    });
+  }
+
+  return items;
+}
+
 export default function CheckoutPage() {
-  const { items, total, totalOriginal } = useCart();
+  const { items: cartItems } = useCart();
   const { utmParams, isLoaded: utmLoaded } = useUTM();
   const pixel = usePixel();
+  const [urlItems, setUrlItems] = useState<CheckoutItem[]>([]);
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,6 +91,47 @@ export default function CheckoutPage() {
     phone: "",
   });
   const router = useRouter();
+
+  // Reconstruct items from URL params when cart is empty (after page reload)
+  useEffect(() => {
+    if (!router.isReady || cartItems.length > 0) return;
+    const productsParam = router.query.products as string;
+    if (!productsParam) return;
+
+    const allProducts = getAllProducts();
+    const parsed: CheckoutItem[] = [];
+
+    for (const pair of productsParam.split(',')) {
+      const colonIdx = pair.lastIndexOf(':');
+      if (colonIdx === -1) continue;
+      const handle = pair.slice(0, colonIdx);
+      const qty = parseInt(pair.slice(colonIdx + 1)) || 1;
+      const product = allProducts.find(p => p.handle === handle);
+      if (!product) continue;
+
+      const regularPrice = parseFloat(product.price.regular.toString());
+      const mapping = (stripeProductMapping as Record<string, { price_id: string }>)[handle];
+
+      parsed.push({
+        id: product.id,
+        handle,
+        stripeId: mapping?.price_id || '',
+        title: product.title,
+        subtitle: 'Eau de Parfum Spray - 100ML',
+        price: regularPrice,
+        image: Array.isArray(product.images) ? product.images[0] : (product.images as any)?.main?.[0] || '',
+        quantity: qty,
+        originalPrice: regularPrice,
+        regularPrice,
+      });
+    }
+
+    setUrlItems(recalculateBundlePrices(parsed));
+  }, [router.isReady, router.query.products, cartItems.length]);
+
+  const items = (cartItems.length > 0 ? cartItems : urlItems) as CheckoutItem[];
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalOriginal = items.reduce((sum, item) => sum + (item.originalPrice || 169.99) * item.quantity, 0);
   const [showPromoInfo, setShowPromoInfo] = useState(false);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -107,7 +202,7 @@ export default function CheckoutPage() {
         })
         .finally(() => setLoading(false));
     }
-  }, [items, utmParams, step, utmLoaded]);
+  }, [items.length, utmParams, step, utmLoaded, urlItems]);
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();

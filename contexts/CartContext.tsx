@@ -227,8 +227,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const initiateCheckout = async () => {
-    // Redirecionar para a página interna de checkout mantendo as UTMs na URL
-    window.location.href = `/checkout${window.location.search}`
+    const productsParam = items.map(item => `${item.handle}:${item.quantity}`).join(',');
+    const params = new URLSearchParams(window.location.search);
+    params.set('products', productsParam);
+    window.location.href = `/checkout?${params.toString()}`;
   }
 
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
