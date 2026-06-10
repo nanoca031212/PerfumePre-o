@@ -46,11 +46,15 @@ function recalculateBundlePrices(items: CheckoutItem[]): CheckoutItem[] {
 
   if (totalQty >= 6) {
     let rem = 6;
-    return items.map(item => {
+    return items.map((item) => {
       const full = item.regularPrice;
-      if (rem >= item.quantity) { rem -= item.quantity; return { ...item, price: p6 }; }
+      if (rem >= item.quantity) {
+        rem -= item.quantity;
+        return { ...item, price: p6 };
+      }
       if (rem > 0) {
-        const blended = (rem * p6 + (item.quantity - rem) * full) / item.quantity;
+        const blended =
+          (rem * p6 + (item.quantity - rem) * full) / item.quantity;
         rem = 0;
         return { ...item, price: blended };
       }
@@ -60,11 +64,15 @@ function recalculateBundlePrices(items: CheckoutItem[]): CheckoutItem[] {
 
   if (totalQty >= 3) {
     let rem = 3;
-    return items.map(item => {
+    return items.map((item) => {
       const full = item.regularPrice;
-      if (rem >= item.quantity) { rem -= item.quantity; return { ...item, price: p3 }; }
+      if (rem >= item.quantity) {
+        rem -= item.quantity;
+        return { ...item, price: p3 };
+      }
       if (rem > 0) {
-        const blended = (rem * p3 + (item.quantity - rem) * full) / item.quantity;
+        const blended =
+          (rem * p3 + (item.quantity - rem) * full) / item.quantity;
         rem = 0;
         return { ...item, price: blended };
       }
@@ -101,25 +109,29 @@ export default function CheckoutPage() {
     const allProducts = getAllProducts();
     const parsed: CheckoutItem[] = [];
 
-    for (const pair of productsParam.split(',')) {
-      const colonIdx = pair.lastIndexOf(':');
+    for (const pair of productsParam.split(",")) {
+      const colonIdx = pair.lastIndexOf(":");
       if (colonIdx === -1) continue;
       const handle = pair.slice(0, colonIdx);
       const qty = parseInt(pair.slice(colonIdx + 1)) || 1;
-      const product = allProducts.find(p => p.handle === handle);
+      const product = allProducts.find((p) => p.handle === handle);
       if (!product) continue;
 
       const regularPrice = parseFloat(product.price.regular.toString());
-      const mapping = (stripeProductMapping as Record<string, { price_id: string }>)[handle];
+      const mapping = (
+        stripeProductMapping as Record<string, { price_id: string }>
+      )[handle];
 
       parsed.push({
         id: product.id,
         handle,
-        stripeId: mapping?.price_id || '',
+        stripeId: mapping?.price_id || "",
         title: product.title,
-        subtitle: 'Eau de Parfum Spray - 100ML',
+        subtitle: "Eau de Parfum Spray - 100ML",
         price: regularPrice,
-        image: Array.isArray(product.images) ? product.images[0] : (product.images as any)?.main?.[0] || '',
+        image: Array.isArray(product.images)
+          ? product.images[0]
+          : (product.images as any)?.main?.[0] || "",
         quantity: qty,
         originalPrice: regularPrice,
         regularPrice,
@@ -130,8 +142,14 @@ export default function CheckoutPage() {
   }, [router.isReady, router.query.products, cartItems.length]);
 
   const items = (cartItems.length > 0 ? cartItems : urlItems) as CheckoutItem[];
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalOriginal = items.reduce((sum, item) => sum + (item.originalPrice || 169.99) * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+  const totalOriginal = items.reduce(
+    (sum, item) => sum + (item.originalPrice || 169.99) * item.quantity,
+    0,
+  );
   const [showPromoInfo, setShowPromoInfo] = useState(false);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -166,7 +184,13 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     // Create a Checkout Session only when step is payment AND UTMs are loaded
-    if (items.length > 0 && !clientSecret && !loading && step === "payment" && utmLoaded) {
+    if (
+      items.length > 0 &&
+      !clientSecret &&
+      !loading &&
+      step === "payment" &&
+      utmLoaded
+    ) {
       setLoading(true);
       fetch("/api/stripe/create-checkout", {
         method: "POST",
