@@ -73,22 +73,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         const finalPrice = (!isNaN(price) && price > 0) ? price : 69;
 
-        let setName = 'Set';
-        const match = item.handle.match(/set-(\d+)/i);
-        if (match && match[1]) {
-          setName = `Set-${match[1]}`;
-        } else {
-          const numMatch = item.handle.match(/(\d+)$/);
-          if (numMatch) {
-            setName = `Set-${numMatch[1]}`;
-          }
-        }
-
         return {
           price_data: {
             currency: 'gbp',
             product_data: {
-              name: setName,
+              name: item.title,
               metadata: {
                 handle: item.handle,
                 originalStripeId: item.stripeId || ''
