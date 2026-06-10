@@ -299,39 +299,49 @@ export default function CheckoutPage() {
             <h2 className="text-xl font-bold">Order Summary</h2>
           </div>
           <div className="space-y-2">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center space-x-4 space-y-2 last:border-0 last:pb-0"
-              >
-                <div className="relative w-20 h-20 bg-gray-100  flex-shrink-0 rounded-md border border-[#f1f1f1] shadow-sm">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full rounded-md object-contain"
-                  />
-                  <div className="absolute -top-2 -right-2">
-                    <p className="text-[12px] text-white bg-black rounded-full w-fit px-2">
-                      {item.quantity}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex-1 font-semibold">
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    {item.title}
-                  </h3>
+            {(() => {
+              const roundedTotal = parseFloat(total.toFixed(2));
+              const sumExceptFirst = items.slice(1).reduce((sum, i) => sum + parseFloat((i.price * i.quantity).toFixed(2)), 0);
+              const firstItemDisplayPrice = parseFloat((roundedTotal - sumExceptFirst).toFixed(2));
 
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="font-bold text-gray-900">
-                      £{item.price.toFixed(2)}
-                    </span>
-                    <span className="text-xs line-through text-gray-400">
-                      Was £{(item.originalPrice || 169.99).toFixed(2)}
-                    </span>
+              return items.map((item, index) => {
+                const displayPrice = index === 0 ? firstItemDisplayPrice : parseFloat((item.price * item.quantity).toFixed(2));
+
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center space-x-4 space-y-2 last:border-0 last:pb-0"
+                  >
+                    <div className="relative w-20 h-20 bg-gray-100  flex-shrink-0 rounded-md border border-[#f1f1f1] shadow-sm">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full rounded-md object-contain"
+                      />
+                      <div className="absolute -top-2 -right-2">
+                        <p className="text-[12px] text-white bg-black rounded-full w-fit px-2">
+                          {item.quantity}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-1 font-semibold">
+                      <h3 className="font-medium text-gray-900 text-sm">
+                        {item.title}
+                      </h3>
+
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-bold text-gray-900">
+                          £{displayPrice.toFixed(2)}
+                        </span>
+                        <span className="text-xs line-through text-gray-400">
+                          Was £{(item.originalPrice || 169.99).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                );
+              });
+            })()}
           </div>
           <div className="flex flex-col-2 justify-between pt-4">
             <div className="flex items-center gap-1 text-[#ff0000] px-3 py-1 rounded-full text-xs font-bold">
@@ -496,12 +506,15 @@ export default function CheckoutPage() {
         ) : (
           <>
             {clientSecret ? (
-              <EmbeddedCheckoutProvider
-                stripe={stripePromise}
-                options={{ clientSecret }}
-              >
-                <EmbeddedCheckout />
-              </EmbeddedCheckoutProvider>
+              <div className="relative">
+                <EmbeddedCheckoutProvider
+                  stripe={stripePromise}
+                  options={{ clientSecret }}
+                >
+                  <EmbeddedCheckout />
+                </EmbeddedCheckoutProvider>
+                <div className="absolute bottom-0 left-0 right-0 h-10 bg-white z-10 pointer-events-none" />
+              </div>
             ) : (
               <div className="flex flex-col justify-center items-center h-64 bg-white rounded-lg shadow-sm">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
