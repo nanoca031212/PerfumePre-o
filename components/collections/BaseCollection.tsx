@@ -399,8 +399,8 @@ export default function BaseCollection({
             </h5>
             <div className="text-sm text-gray-500 mt-1">
               {selectedCount < 3
-                ? `Buy any ${3 - selectedCount} more fragrance${3 - selectedCount > 1 ? "s" : ""} for just £49.99 and get the 3rd FREE`
-                : `First 3 perfumes for £49.99. Additional items at full price.`}
+                ? `${3 - selectedCount} perfumes missing. Unlock the discount.`
+                : `First 3 perfumes for £49.99. `}
             </div>
           </div>
         </div>
