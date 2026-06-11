@@ -39,48 +39,26 @@ type CheckoutItem = {
 
 function recalculateBundlePrices(items: CheckoutItem[]): CheckoutItem[] {
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  const p3 = 89.99 / 3;
-  const p6 = 178.99 / 6;
+  const p3 = 49.99 / 3;
 
   if (totalQty < 3) return items;
 
-  if (totalQty >= 6) {
-    let rem = 6;
-    return items.map((item) => {
-      const full = item.regularPrice;
-      if (rem >= item.quantity) {
-        rem -= item.quantity;
-        return { ...item, price: p6 };
-      }
-      if (rem > 0) {
-        const blended =
-          (rem * p6 + (item.quantity - rem) * full) / item.quantity;
-        rem = 0;
-        return { ...item, price: blended };
-      }
-      return { ...item, price: full };
-    });
-  }
-
-  if (totalQty >= 3) {
-    let rem = 3;
-    return items.map((item) => {
-      const full = item.regularPrice;
-      if (rem >= item.quantity) {
-        rem -= item.quantity;
-        return { ...item, price: p3 };
-      }
-      if (rem > 0) {
-        const blended =
-          (rem * p3 + (item.quantity - rem) * full) / item.quantity;
-        rem = 0;
-        return { ...item, price: blended };
-      }
-      return { ...item, price: full };
-    });
-  }
-
-  return items;
+  // First 3 at bundle price, remainder at full price
+  let rem = 3;
+  return items.map((item) => {
+    const full = item.regularPrice;
+    if (rem >= item.quantity) {
+      rem -= item.quantity;
+      return { ...item, price: p3 };
+    }
+    if (rem > 0) {
+      const blended =
+        (rem * p3 + (item.quantity - rem) * full) / item.quantity;
+      rem = 0;
+      return { ...item, price: blended };
+    }
+    return { ...item, price: full };
+  });
 }
 
 export default function CheckoutPage() {
@@ -300,12 +278,14 @@ export default function CheckoutPage() {
           </div>
           <div className="space-y-2">
             {(() => {
+              const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
               const roundedTotal = parseFloat(total.toFixed(2));
               const sumExceptFirst = items.slice(1).reduce((sum, i) => sum + parseFloat((i.price * i.quantity).toFixed(2)), 0);
               const firstItemDisplayPrice = parseFloat((roundedTotal - sumExceptFirst).toFixed(2));
 
               return items.map((item, index) => {
                 const displayPrice = index === 0 ? firstItemDisplayPrice : parseFloat((item.price * item.quantity).toFixed(2));
+                const displayName = totalQty === 1 ? item.title : `${totalQty} Perfumes Bundle`;
 
                 return (
                   <div
@@ -326,7 +306,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 font-semibold">
                       <h3 className="font-medium text-gray-900 text-sm">
-                        {item.title}
+                        {displayName}
                       </h3>
 
                       <div className="flex items-center gap-2 mt-1">

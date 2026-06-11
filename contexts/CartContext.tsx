@@ -137,8 +137,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const recalculateBundlePrices = (items: CartItem[]): CartItem[] => {
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-    const promo3Price = 89.99 / 3;   // £29.99 each — 3-unit bundle
-    const promo6Price = 178.99 / 6;  // ~£29.83 each — 6-unit bundle
+    const promo3Price = 49.99 / 3;
 
     if (totalQuantity <= 2) {
       return items.map(item => ({ ...item, price: item.regularPrice || item.price }));
@@ -148,47 +147,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return items.map(item => ({ ...item, price: promo3Price }));
     }
 
-    if (totalQuantity === 4 || totalQuantity === 5) {
-      // Units 1-3 at promo3Price; units 4 and 5 at full (regular) price.
-      let remainingPromo = 3;
-      return items.map(item => {
-        const regularPrice = item.regularPrice || item.price;
-        if (remainingPromo >= item.quantity) {
-          remainingPromo -= item.quantity;
-          return { ...item, price: promo3Price };
-        } else if (remainingPromo > 0) {
-          const unitsAtPromo = remainingPromo;
-          const unitsAtFull = item.quantity - unitsAtPromo;
-          remainingPromo = 0;
-          const blendedPrice = (unitsAtPromo * promo3Price + unitsAtFull * regularPrice) / item.quantity;
-          return { ...item, price: blendedPrice };
-        } else {
-          return { ...item, price: regularPrice };
-        }
-      });
-    }
-
-    if (totalQuantity >= 6) {
-      // First 6 units at promo6Price; units 7+ at full price.
-      let remainingPromo = 6;
-      return items.map(item => {
-        const regularPrice = item.regularPrice || item.price;
-        if (remainingPromo >= item.quantity) {
-          remainingPromo -= item.quantity;
-          return { ...item, price: promo6Price };
-        } else if (remainingPromo > 0) {
-          const unitsAtPromo = remainingPromo;
-          const unitsAtFull = item.quantity - unitsAtPromo;
-          remainingPromo = 0;
-          const blendedPrice = (unitsAtPromo * promo6Price + unitsAtFull * regularPrice) / item.quantity;
-          return { ...item, price: blendedPrice };
-        } else {
-          return { ...item, price: regularPrice };
-        }
-      });
-    }
-
-    return items;
+    // 4+ perfumes: first 3 at bundle price, remainder at full price
+    let remainingPromo = 3;
+    return items.map(item => {
+      const regularPrice = item.regularPrice || item.price;
+      if (remainingPromo >= item.quantity) {
+        remainingPromo -= item.quantity;
+        return { ...item, price: promo3Price };
+      } else if (remainingPromo > 0) {
+        const unitsAtPromo = remainingPromo;
+        const unitsAtFull = item.quantity - unitsAtPromo;
+        remainingPromo = 0;
+        const blendedPrice = (unitsAtPromo * promo3Price + unitsAtFull * regularPrice) / item.quantity;
+        return { ...item, price: blendedPrice };
+      } else {
+        return { ...item, price: regularPrice };
+      }
+    });
   };
 
   const removeItem = (id: number) => {

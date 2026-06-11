@@ -42,7 +42,9 @@
       "Bash(git show *)",
       "Bash(grep -E \"\\\\.\\(md|txt\\)$\")",
       "Bash(xargs grep -l \"trackViewContent\\\\|trackAddToCart\\\\|ViewContent\\\\|AddToCart\")",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\lucas\\\\clone\\\\perfumepreço\\\\perfumepreço\" | Where-Object {$_.PSIsContainer} | Select-Object Name)"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\lucas\\\\clone\\\\perfumepreço\\\\perfumepreço\" | Where-Object {$_.PSIsContainer} | Select-Object Name)",
+      "Bash(Get-ChildItem -Force)",
+      "Bash(Select-Object -First 30)"
     ]
   }
 }

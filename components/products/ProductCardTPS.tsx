@@ -140,20 +140,8 @@ export default function ProductCardTPS({
         const slotIndex = parseInt(bundleSlot as string);
         state.selections[slotIndex] = product;
       } else {
-        let pCount =
-          state.packType === "trio" ? 3 : state.packType === "hexa" ? 6 : 3;
-
-        let filledCount = state.selections.filter(
-          (p: any) => p !== null,
-        ).length;
-        if (filledCount >= 3 && state.packType === "trio") {
-          state.packType = "hexa";
-          while (state.selections.length < 6) state.selections.push(null);
-          pCount = 6;
-        }
-
         let nextEmptySlot = -1;
-        for (let i = 0; i < pCount; i++) {
+        for (let i = 0; i < state.selections.length; i++) {
           if (!state.selections[i]) {
             nextEmptySlot = i;
             break;
@@ -162,10 +150,8 @@ export default function ProductCardTPS({
 
         if (nextEmptySlot !== -1) {
           state.selections[nextEmptySlot] = product;
-        } else if (pCount === 6) {
-          // Reset bundle if they add a 7th item (lose the discount)
-          state.packType = "trio";
-          state.selections = [product, null, null];
+        } else {
+          state.selections.push(product);
         }
       }
 
@@ -178,24 +164,15 @@ export default function ProductCardTPS({
       if (!isSelectionMode) {
         await addBundleToCart(finalSelections, state.packType);
 
-        if (finalCount === 3 && state.packType === "trio") {
-          const firstProduct = finalSelections[0];
-          if (firstProduct) {
-            router.push(`/products/${firstProduct.handle}?scroll=bundle`);
-            return;
-          }
-        }
-
-        if (finalCount === 6) {
+        if (finalCount === 3) {
           setIsOpen(true);
+          return;
         }
       }
 
       if (isSelectionMode && returnTo) {
         let nextEmptySlotAfter = -1;
-        const pCount =
-          state.packType === "trio" ? 3 : state.packType === "hexa" ? 6 : 3;
-        for (let i = 0; i < pCount; i++) {
+        for (let i = 0; i < 3; i++) {
           if (!state.selections[i]) {
             nextEmptySlotAfter = i;
             break;
@@ -250,12 +227,7 @@ export default function ProductCardTPS({
 
             if (isSelectionMode && returnTo) {
               let nextEmptySlot = -1;
-              const pCount =
-                state.packType === "trio"
-                  ? 3
-                  : state.packType === "hexa"
-                    ? 6
-                    : 1;
+              const pCount = state.packType === "trio" ? 3 : 1;
               for (let i = 0; i < pCount; i++) {
                 if (!state.selections[i]) {
                   nextEmptySlot = i;
@@ -305,28 +277,12 @@ export default function ProductCardTPS({
         let itemPrice: number;
         let itemOriginalPrice: number;
 
-        if (count <= 2) {
-          // 1-2 perfumes: preço cheio
-          itemPrice = regularPrice;
-          itemOriginalPrice = originalPrice;
-        } else if (count === 3) {
-          itemPrice = 89.99 / 3;
-          itemOriginalPrice = regularPrice;
-        } else if (count >= 4 && count < 6) {
-          if (i < 3) {
-            itemPrice = 89.99 / 3;
-            itemOriginalPrice = regularPrice;
-          } else {
-            itemPrice = regularPrice;
-            itemOriginalPrice = originalPrice;
-          }
-        } else if (count === 6) {
-          itemPrice = 178.99 / 6;
+        if (count >= 3 && i < 3) {
+          itemPrice = 49.99 / 3;
           itemOriginalPrice = regularPrice;
         } else {
-          // 7+ units: first 6 at bundle price, rest at full price
-          itemPrice = i < 6 ? 178.99 / 6 : regularPrice;
-          itemOriginalPrice = i < 6 ? regularPrice : originalPrice;
+          itemPrice = regularPrice;
+          itemOriginalPrice = originalPrice;
         }
 
         const cartItem = {
@@ -432,7 +388,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Summer deal buy 2 fragrances for $89.99 & get the 3rd FREE
+            Summer deal buy 2 fragrances for $49.99 & get the 3rd FREE
           </div>
 
           {/* Badge - Canto superior direito */}

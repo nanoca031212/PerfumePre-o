@@ -16,7 +16,7 @@ export interface BundleSelection {
   totalPrice: number;
 }
 
-const TRIO_PRICE = 89.99;
+const TRIO_PRICE = 49.99;
 const HEXA_PRICE = 178.99;
 
 export default function BundleSelector({
@@ -31,12 +31,17 @@ export default function BundleSelector({
   useEffect(() => {
     if (router.query.scroll === "bundle") {
       setTimeout(() => {
-        containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        containerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       }, 500); // 500ms delay to ensure images and layout are fully loaded
 
       // Clean up the URL parameter
       const { scroll, ...rest } = router.query;
-      router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
+      router.replace({ pathname: router.pathname, query: rest }, undefined, {
+        shallow: true,
+      });
     }
   }, [router.query.scroll, router]);
   const [selectedPack, setSelectedPack] = useState<"single" | "trio" | "hexa">(
@@ -49,9 +54,9 @@ export default function BundleSelector({
   const packCount =
     selectedPack === "single" ? 1 : selectedPack === "trio" ? 3 : 6;
 
-const unitPrice = Number(currentProduct.price.regular) || 36.00;
+  const unitPrice = Number(currentProduct.price.regular) || 36.0;
   const SINGLE_ORIGINAL = unitPrice * 2.5; // Showing a premium original price
-  const TRIO_ORIGINAL = unitPrice * 3 * 2; 
+  const TRIO_ORIGINAL = unitPrice * 3 * 2;
   const HEXA_ORIGINAL = unitPrice * 6 * 2;
 
   // Read localStorage selections on mount
@@ -65,10 +70,12 @@ const unitPrice = Number(currentProduct.price.regular) || 36.00;
         "bundleState",
         JSON.stringify({ packType: "single", selections: initialSelections }),
       );
-      
+
       // Clean up the URL flag
       const { reset, ...rest } = router.query;
-      router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
+      router.replace({ pathname: router.pathname, query: rest }, undefined, {
+        shallow: true,
+      });
       return;
     }
 
@@ -114,7 +121,7 @@ const unitPrice = Number(currentProduct.price.regular) || 36.00;
   const handlePackSelect = (packId: "single" | "trio" | "hexa") => {
     const isNewPack = selectedPack !== packId;
     setSelectedPack(packId);
-    
+
     let finalSelections = [...fragranceSelections];
     let slotToFill = -1;
 
@@ -232,13 +239,6 @@ const unitPrice = Number(currentProduct.price.regular) || 36.00;
       price: TRIO_PRICE,
       originalPrice: TRIO_ORIGINAL,
       popular: true,
-    },
-    {
-      id: "hexa" as const,
-      label: "6 PERFUMES",
-      price: HEXA_PRICE,
-      originalPrice: HEXA_ORIGINAL,
-      popular: false,
     },
   ];
 
@@ -366,7 +366,10 @@ const unitPrice = Number(currentProduct.price.regular) || 36.00;
                               {/* Action Buttons */}
                               <div className="flex items-center gap-1 flex-shrink-0">
                                 <button
-                                  onClick={(e) => { e.preventDefault(); openPicker(idx); }}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    openPicker(idx);
+                                  }}
                                   className="w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-xl bg-[#d4d4d4] flex items-center justify-center text-black border border-[#333] hover:opacity-90 hover:border-white transition-all"
                                   title="Edit"
                                 >
@@ -374,7 +377,10 @@ const unitPrice = Number(currentProduct.price.regular) || 36.00;
                                 </button>
                                 {idx > 0 && (
                                   <button
-                                    onClick={(e) => { e.preventDefault(); handleRemoveScent(idx); }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleRemoveScent(idx);
+                                    }}
                                     className="w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-xl bg-[#d4d4d4] flex items-center justify-center text-[#E00030] border border-[#333] hover:opacity-90 hover:border-[#E00030] transition-all"
                                     title="Remove"
                                   >

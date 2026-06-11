@@ -82,24 +82,11 @@ export default function BaseCollection({
         const state = JSON.parse(stored);
         if (state && Array.isArray(state.selections)) {
           if (state.selections[0]) setBaseProductId(state.selections[0].id);
-          const pCount =
-            state.packType === "trio" ? 3 : state.packType === "hexa" ? 6 : 1;
-          let filled = 0;
-          for (let i = 0; i < pCount; i++) {
-            if (state.selections[i]) filled++;
-          }
-          setRemaining(pCount - filled);
-          setPackName(
-            state.packType === "trio"
-              ? "3 Perfumes"
-              : state.packType === "hexa"
-                ? "6 Perfumes"
-                : "1 Perfume",
-          );
-          setSelectedCount(filled);
-
-          // Encontrar todas as imagens dos produtos selecionados
           const nonNullSelections = state.selections.filter((p: any) => p);
+          const totalSelected = nonNullSelections.length;
+          setSelectedCount(totalSelected);
+          setRemaining(Math.max(0, 3 - totalSelected));
+          setPackName("3 Perfumes");
           const extractedImages = nonNullSelections.map((selection: any) => {
             return Array.isArray(selection.images)
               ? selection.images[0]
@@ -144,6 +131,19 @@ export default function BaseCollection({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
     };
+  }, []);
+
+  // Mostra o toast de boas-vindas ao entrar na página
+  useEffect(() => {
+    const welcomeTimer = setTimeout(() => {
+      setShowAlert(true);
+      setTimeout(() => setToastVisible(true), 10);
+      timeoutRef.current = setTimeout(() => {
+        setToastVisible(false);
+        fadeTimeoutRef.current = setTimeout(() => setShowAlert(false), 500);
+      }, 4000);
+    }, 1000);
+    return () => clearTimeout(welcomeTimer);
   }, []);
 
   // Usar filtros baseados em sessão UTM
@@ -393,22 +393,14 @@ export default function BaseCollection({
           >
             <Info className="h-5 w-5" />
             <h5 className="mb-1 font-semibold leading-none tracking-tight text-sm">
-              {selectedCount === 6
-                ? "🎉 Maximum Discount Achieved!"
-                : selectedCount >= 4
-                  ? "Continue adicionando!"
-                  : selectedCount === 3
-                    ? "🎉 Discount Unlocked!"
-                    : "Mix & match — 3 perfumes por £89.99"}
+              {selectedCount >= 3
+                ? "🎉 Discount Unlocked!"
+                : "Mix & match — 3 perfumes por £49.99"}
             </h5>
             <div className="text-sm text-gray-500 mt-1">
               {selectedCount < 3
-                ? `Buy any ${3 - selectedCount} fragrances for just $89.99 and get the 3rd FREE`
-                : selectedCount === 3
-                  ? `Congratulations, you've unlocked the discount 3 perfumes for £89.99. Select more 3 perfumes to unlock the maximum discount.`
-                  : selectedCount < 6
-                    ? `${6 - selectedCount} more perfume(s) to unlock the maximum discount.`
-                    : `Congratulations, you've unlocked the maximum discount!`}
+                ? `Buy any ${3 - selectedCount} more fragrance${3 - selectedCount > 1 ? "s" : ""} for just £49.99 and get the 3rd FREE`
+                : `First 3 perfumes for £49.99. Additional items at full price.`}
             </div>
           </div>
         </div>
@@ -429,8 +421,9 @@ export default function BaseCollection({
               index === 0 && !isExpanded
                 ? selectedImages[selectedImages.length - 1]
                 : img;
-            const displayBadge =
-              index === 0 && !isExpanded ? selectedCount : index + 1;
+            const showBadge =
+              (!isExpanded && index === 0) ||
+              (isExpanded && index === selectedImages.length - 1);
 
             return (
               <div
@@ -457,9 +450,11 @@ export default function BaseCollection({
                     </div>
                   )}
                   {/* Quantity Badge - Top Left Absolute */}
-                  <div className="absolute -top-3 -left-3 bg-black text-white text-[12px] w-6 h-6 rounded-full flex items-center justify-center font-black border-2 border-white shadow-md z-20">
-                    {displayBadge}
-                  </div>
+                  {showBadge && (
+                    <div className="absolute -top-3 -left-3 bg-black text-white text-[12px] w-6 h-6 rounded-full flex items-center justify-center font-black border-2 border-white shadow-md z-20">
+                      {selectedCount}
+                    </div>
+                  )}
                 </div>
               </div>
             );

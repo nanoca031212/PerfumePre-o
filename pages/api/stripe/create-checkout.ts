@@ -33,27 +33,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userAgent = req.headers['user-agent'] || '';
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
 
-    // Preços exatos dos bundles em centavos (evita erro de arredondamento)
-    const BUNDLE_3_PRICE_CENTS = 8999; // £89.99
-    const BUNDLE_6_PRICE_CENTS = 17899; // £178.99
+    // Preço exato do bundle de 3 em centavos (evita erro de arredondamento)
+    const BUNDLE_3_PRICE_CENTS = 4999; // £49.99
 
     const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
 
-    // Para bundles de 3 ou 6, envia um único line item com o valor exato
+    // 1 perfume → nome do perfume | 2+ → "N Perfumes Bundle"
     let lineItems;
-    if (totalQty === 6) {
+    if (totalQty === 1) {
+      const item = items[0];
+      const price = Number(item.price);
+      const finalPrice = (!isNaN(price) && price > 0) ? price : 69;
       lineItems = [{
         price_data: {
           currency: 'gbp',
           product_data: {
-            name: '6 Perfumes Bundle',
-            metadata: { handles: items.map(i => i.handle).join(',') }
+            name: item.title,
+            metadata: { handle: item.handle, originalStripeId: item.stripeId || '' }
           },
-          unit_amount: BUNDLE_6_PRICE_CENTS,
+          unit_amount: Math.round(finalPrice * 100),
         },
         quantity: 1
       }];
     } else if (totalQty === 3) {
+      // Bundle fixo de 3 perfumes
       lineItems = [{
         price_data: {
           currency: 'gbp',
@@ -66,28 +69,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         quantity: 1
       }];
     } else {
-      lineItems = items.map(item => {
+      // 2, 4+ perfumes: primeiros 3 no preço do bundle, restante preço cheio
+      const totalCents = items.reduce((sum, item) => {
         const price = Number(item.price);
-        if (isNaN(price) || price <= 0) {
-          console.warn(`Preço inválido para o item ${item.title}: ${item.price}. Usando fallback 69`);
-        }
         const finalPrice = (!isNaN(price) && price > 0) ? price : 69;
-
-        return {
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: item.title,
-              metadata: {
-                handle: item.handle,
-                originalStripeId: item.stripeId || ''
-              }
-            },
-            unit_amount: Math.round(finalPrice * 100),
+        return sum + Math.round(finalPrice * item.quantity * 100);
+      }, 0);
+      lineItems = [{
+        price_data: {
+          currency: 'gbp',
+          product_data: {
+            name: `${totalQty} Perfumes Bundle`,
+            metadata: { handles: items.map(i => i.handle).join(',') }
           },
-          quantity: item.quantity
-        };
-      });
+          unit_amount: totalCents,
+        },
+        quantity: 1
+      }];
     }
 
     // IDs dos produtos para CAPI (mesmo ID usado nos browser pixel events)
