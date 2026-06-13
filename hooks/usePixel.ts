@@ -1,22 +1,28 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { trackEvent, setGlobalUserData } from '@/lib/utils';
 
 export const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_1 || '1201843863809192';
 
-export const usePixel = (trackPageView = false) => {
-  const router = useRouter();
+const AD_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'src'];
 
+export const usePixel = (trackPageView = false) => {
   useEffect(() => {
     if (!trackPageView) return;
 
-    const handleRouteChange = () => trackEvent('PageView');
+    // PageView a cada carregamento de página (o app usa full reload em toda navegação)
+    trackEvent('PageView');
 
-    router.events.on('routeChangeComplete', handleRouteChange);
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-    };
-  }, [router.events, trackPageView]);
+    // LandingPageView apenas na primeira chegada via anúncio nesta sessão
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasAdUtm = AD_UTM_KEYS.some(key => urlParams.has(key));
+    const alreadyTracked = sessionStorage.getItem('lpv_tracked');
+
+    if (hasAdUtm && !alreadyTracked) {
+      trackEvent('LandingPageView');
+      sessionStorage.setItem('lpv_tracked', '1');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackPageView]);
 
   return {
     // Função para atualizar dados do usuário para Advanced Matching

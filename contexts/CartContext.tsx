@@ -76,6 +76,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     initializeAutoCleanup()
   }, [])
 
+  // AddToCart único quando a bag é aberta (independente da quantidade de perfumes)
+  useEffect(() => {
+    if (!isOpen || items.length === 0) return;
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+    pixel.addToCart({
+      value: total,
+      currency: 'GBP',
+      num_items: totalQuantity,
+      content_ids: items.map(i => i.id.toString()),
+      content_type: 'product'
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
   const addItem = (newItem: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
     // Validar e corrigir IDs obsoletos antes de adicionar
     const validatedItem = validateAndFixCartItem(newItem)
@@ -108,14 +122,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ...validatedItem,
       stripeId
     }
-
-    // Rastrear evento AddToCart ANTES da função de setState
-    pixel.addToCart({
-      value: itemWithStripeId.price * quantity,
-      currency: 'GBP',
-      content_name: itemWithStripeId.title,
-      content_ids: [itemWithStripeId.id.toString()]
-    })
 
     setItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === itemWithStripeId.id)
