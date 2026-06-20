@@ -78,6 +78,12 @@ export default function CheckoutPage() {
   });
   const router = useRouter();
 
+  // Evento personalizado disparado toda vez que a pré-checkout é aberta
+  useEffect(() => {
+    pixel.track("PreIc");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Reconstruct items from URL params when cart is empty (after page reload)
   useEffect(() => {
     if (!router.isReady || cartItems.length > 0) return;

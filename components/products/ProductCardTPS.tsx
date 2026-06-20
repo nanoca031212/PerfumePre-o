@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Star } from "lucide-react";
 import { Product } from "@/types/product";
-import { usePixel } from "@/hooks/usePixel";
 import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardTPSProps {
@@ -20,7 +19,6 @@ export default function ProductCardTPS({
 }: ProductCardTPSProps) {
   const [imageError, setImageError] = useState(false);
   const [selectionIndices, setSelectionIndices] = useState<string>("");
-  const pixel = usePixel();
   const [isBundleEmpty, setIsBundleEmpty] = useState(true);
   const { addItem, clearCart, setIsOpen } = useCart();
 
@@ -108,21 +106,8 @@ export default function ProductCardTPS({
   const isSelectionMode =
     typeof bundleSlot === "string" && typeof returnTo === "string";
 
-  // Função para rastrear visualização do produto
-  const handleViewContent = () => {
-    pixel.viewContent({
-      content_type: "product",
-      content_ids: [product.id.toString()],
-      content_name: product.title,
-      content_category: product.tags.join(","),
-      value: parseFloat(product.price.regular.toString()),
-      currency: "GBP",
-    });
-  };
-
   const handleCardClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    handleViewContent();
 
     try {
       const stored = localStorage.getItem("bundleState");
@@ -334,7 +319,6 @@ export default function ProductCardTPS({
           router.pathname === "/"
             ? `/products/${product.handle}?reset=true`
             : `/products/${product.handle}`,
-        onClick: handleViewContent,
         className: "flex flex-col flex-grow",
         suppressHydrationWarning: true,
       };
@@ -482,7 +466,6 @@ export default function ProductCardTPS({
               }
               className="block w-full bg-white !border !border-solid !border-black rounded-[4px] text-black font-medium py-3 text-x1 uppercase tracking-wide
                        hover:bg-gray-900 hover:text-white  transition-colors duration-300 text-center"
-              onClick={handleViewContent}
               suppressHydrationWarning
             >
               VIEW Promotion

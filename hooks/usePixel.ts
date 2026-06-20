@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { trackEvent, setGlobalUserData } from '@/lib/utils';
 
 export const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_1 || '1201843863809192';
@@ -6,11 +7,16 @@ export const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID_1 || '12018
 const AD_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'src'];
 
 export const usePixel = (trackPageView = false) => {
+  const router = useRouter();
+
   useEffect(() => {
     if (!trackPageView) return;
 
-    // PageView a cada carregamento de página (o app usa full reload em toda navegação)
-    trackEvent('PageView');
+    // PageView a cada carregamento de página, exceto na página de produto (lá só dispara ViewContent)
+    const isProductPage = router.pathname === '/products/[handle]';
+    if (!isProductPage) {
+      trackEvent('PageView');
+    }
 
     // LandingPageView apenas na primeira chegada via anúncio nesta sessão
     const urlParams = new URLSearchParams(window.location.search);
@@ -20,6 +26,15 @@ export const usePixel = (trackPageView = false) => {
     if (hasAdUtm && !alreadyTracked) {
       trackEvent('LandingPageView');
       sessionStorage.setItem('lpv_tracked', '1');
+    }
+
+    // "home" apenas na primeira vez que o usuário chega na página inicial nesta sessão
+    const isHomePage = router.pathname === '/';
+    const homeAlreadyTracked = sessionStorage.getItem('home_tracked');
+
+    if (isHomePage && !homeAlreadyTracked) {
+      trackEvent('home');
+      sessionStorage.setItem('home_tracked', '1');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackPageView]);
