@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { sendCapiEvent } from '@/lib/facebook-capi';
 import { sendTikTokCapiEvent } from '@/lib/tiktok-capi';
 
 
@@ -33,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // Processar evento para Facebook CAPI e TikTok CAPI
+    // Processar evento para TikTok CAPI
     const body = req.method === 'POST' ? req.body : req.query;
     const { eventName, eventId, parameters, userData } = body;
 
@@ -41,33 +40,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress;
       const userAgent = req.headers['user-agent'];
-      const fbp = req.cookies['_fbp'];
-      const fbc = req.cookies['_fbc'];
       const ttp = req.cookies['_ttp'];
       const ttclid = req.cookies['ttclid'];
       
       // Preserve the client-supplied eventId so client-side and server-side events
       // share the same ID for deduplication. Only generate a fallback if not provided.
       const resolvedEventId = eventId || `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      // Enviar para CAPI em background (não bloquear a resposta)
-      sendCapiEvent({
-        eventName,
-        eventId: resolvedEventId,
-        email: userData?.em,
-        phone: userData?.ph,
-        firstName: userData?.fn,
-        lastName: userData?.ln,
-        clientIp,
-        userAgent,
-        fbp,
-        fbc,
-        value: parameters?.value,
-        currency: parameters?.currency,
-        sourceUrl: req.headers.referer,
-        contentIds: parameters?.content_ids,
-        contentType: parameters?.content_type || 'product'
-      }).catch(err => console.error('[CAPI Background Error]', err));
 
       // Enviar para TikTok CAPI em background
       sendTikTokCapiEvent({

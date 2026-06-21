@@ -113,28 +113,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.error('❌ Erro ao processar UTMify (webhook):', error);
         }
 
-        // Enviar conversão para Facebook CAPI e TikTok CAPI (Redundância + Deduplicação)
+        // Enviar conversão para TikTok CAPI (Redundância + Deduplicação)
         try {
-          const { sendCapiEvent } = await import('@/lib/facebook-capi');
           const { sendTikTokCapiEvent } = await import('@/lib/tiktok-capi');
 
           // Extrair dados do cliente
           const customerEmail = session.customer_details?.email || session.customer_email || undefined;
-          const customerName = session.customer_details?.name || undefined;
           const customerPhone = session.customer_details?.phone || undefined;
 
-          let firstName = undefined;
-          let lastName = undefined;
-
-          if (customerName) {
-            const parts = customerName.split(' ');
-            firstName = parts[0];
-            lastName = parts.length > 1 ? parts.slice(1).join(' ') : undefined;
-          }
-
-          // Extrair metadados de rastreamento (FBP, FBC, IP, UA, TTCLID, TTP)
-          const fbp = session.metadata?.fbp;
-          const fbc = session.metadata?.fbc;
+          // Extrair metadados de rastreamento (IP, UA, TTCLID, TTP)
           const ttclid = session.metadata?.ttclid;
           const ttp = session.metadata?.ttp;
           const userAgent = session.metadata?.user_agent;
@@ -155,26 +142,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const purchaseValue = session.amount_total ? session.amount_total / 100 : 0;
           const purchaseCurrency = session.currency?.toUpperCase() || 'GBP';
 
-          // Facebook CAPI
-          await sendCapiEvent({
-            eventName: 'Purchase',
-            eventId: session.id,
-            email: customerEmail,
-            phone: customerPhone,
-            firstName,
-            lastName,
-            fbp,
-            fbc,
-            userAgent,
-            clientIp,
-            externalId: session.id,
-            value: purchaseValue,
-            currency: purchaseCurrency,
-            sourceUrl,
-            contentIds,
-            contentType: 'product',
-          });
-
           // TikTok CAPI
           await sendTikTokCapiEvent({
             eventName: 'CompletePayment',
@@ -193,7 +160,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             contentType: 'product',
           });
         } catch (error) {
-          console.error('❌ Erro ao processar CAPI (Facebook/TikTok):', error);
+          console.error('❌ Erro ao processar TikTok CAPI:', error);
         }
 
         console.log('✅ Checkout session completed processado:', session.id);
