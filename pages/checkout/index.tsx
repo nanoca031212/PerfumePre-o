@@ -85,10 +85,20 @@ export default function CheckoutPage() {
   }, []);
 
   // Reconstruct items from URL params when cart is empty (after page reload)
+  const [itemsHydrated, setItemsHydrated] = useState(false);
+
   useEffect(() => {
-    if (!router.isReady || cartItems.length > 0) return;
+    if (cartItems.length > 0) {
+      setItemsHydrated(true);
+      return;
+    }
+    if (!router.isReady) return;
+
     const productsParam = router.query.products as string;
-    if (!productsParam) return;
+    if (!productsParam) {
+      setItemsHydrated(true);
+      return;
+    }
 
     const allProducts = getAllProducts();
     const parsed: CheckoutItem[] = [];
@@ -123,6 +133,7 @@ export default function CheckoutPage() {
     }
 
     setUrlItems(recalculateBundlePrices(parsed));
+    setItemsHydrated(true);
   }, [router.isReady, router.query.products, cartItems.length]);
 
   const items = (cartItems.length > 0 ? cartItems : urlItems) as CheckoutItem[];
@@ -239,6 +250,24 @@ export default function CheckoutPage() {
 
     setStep("payment");
   };
+
+  if (!itemsHydrated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Head>
+          <title>Checkout | Perfumes UK</title>
+        </Head>
+        <HeaderTPS sticky={true} />
+        <div className="flex-grow flex items-center justify-center py-40">
+          <div className="flex flex-col items-center gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black" />
+            <p className="text-sm text-gray-500">Loading your order...</p>
+          </div>
+        </div>
+        <FooterTPS />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
