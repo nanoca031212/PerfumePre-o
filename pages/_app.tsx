@@ -52,6 +52,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isQuizPage = router.pathname === '/quiz'
   const isCheckoutPage = router.pathname.startsWith('/checkout')
+  const isAdminPage = router.pathname.startsWith('/login/admin')
+
+  if (isAdminPage) {
+    return <Component {...pageProps} />
+  }
 
   return (
     <CartProvider>

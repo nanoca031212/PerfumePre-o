@@ -103,6 +103,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       shipping_address_collection: {
         allowed_countries: ['GB'],
       },
+      shipping_options: [
+        { shipping_rate: 'shr_1Tr33VHWAF0tmQjWBLvT5pg7' }, // Free Delivery
+        { shipping_rate: 'shr_1Tr31vHWAF0tmQjWoHUyNitL' }, // Fast Delivery (£9.99)
+      ],
       phone_number_collection: {
         enabled: true,
       },
