@@ -134,7 +134,7 @@ export default async function handler(
       },
       shipping_options: [
         { shipping_rate: "shr_1TuOvrHWAF0tmQjWWGsX9dK5" }, // Free Delivery
-        { shipping_rate: "shr_1TuOzWHWAF0tmQjWt55w9gPX" }, // Fast Delivery (£9.99)
+        { shipping_rate: "shr_1TuQ9xHWAF0tmQjWaAfwzppu" }, // Fast Delivery (£9.99)
       ],
       phone_number_collection: {
         enabled: true,
