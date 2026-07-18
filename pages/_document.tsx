@@ -116,7 +116,7 @@ export default function Document() {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.tikTokPixelId = "6a19d76e773f591f04aa5841";
+              window.tikTokPixelId = "${process.env.NEXT_PUBLIC_UTMIFY_TIKTOK_PIXEL_ID || ''}";
               var a = document.createElement("script");
               a.setAttribute("async", "");
               a.setAttribute("defer", "");

@@ -2,7 +2,10 @@ import Link from 'next/link'
 import { Package, Clock, DollarSign, Mail } from 'lucide-react'
 import AdminShell from '@/components/admin/AdminShell'
 import { MOCK_ORDERS, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/lib/admin/orders'
+import { requireAdminAuth } from '@/lib/admin/require-auth'
 import { cn } from '@/lib/utils'
+
+export const getServerSideProps = requireAdminAuth()
 
 export default function AdminDashboardPage() {
   const totalOrders = MOCK_ORDERS.length
@@ -33,14 +36,14 @@ export default function AdminDashboardPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Link
-          href="/login/admin/orders"
+          href="/admin/orders"
           className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 transition-colors hover:bg-slate-900"
         >
           <h3 className="font-semibold text-white">Ver Ordens</h3>
           <p className="mt-1 text-sm text-slate-400">Acompanhe e gerencie todos os pedidos.</p>
         </Link>
         <Link
-          href="/login/admin/email"
+          href="/admin/email"
           className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 transition-colors hover:bg-slate-900"
         >
           <h3 className="font-semibold text-white">Automação de Email</h3>

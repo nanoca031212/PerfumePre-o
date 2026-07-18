@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { buffer } from 'micro';
 import Stripe from 'stripe';
+import type { Prisma } from '@prisma/client';
 import { stripe } from '../../../lib/stripe';
 
 // Desabilita o parser de corpo padrão do Next.js
@@ -91,6 +92,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Aqui você pode atualizar seu banco de dados, enviar emails, etc.
         console.log('Payment Succeeded:', session.id);
+
+        // Salva o cliente no banco — apenas pagamentos concluídos
+        if (session.payment_status === 'paid') {
+          try {
+            const { prisma } = await import('@/lib/prisma');
+            const { getPaidSessionDetails } = await import('@/lib/admin/stripe-orders');
+            const details = await getPaidSessionDetails(session);
+
+            await prisma.customer.upsert({
+              where: { stripeSessionId: session.id },
+              create: {
+                stripeSessionId: session.id,
+                name: details.name,
+                email: details.email,
+                purchasedAt: details.purchasedAt,
+                items: details.items as unknown as Prisma.InputJsonValue,
+                address: details.address,
+              },
+              update: {},
+            });
+            console.log('✅ Cliente salvo no banco:', session.id);
+          } catch (error) {
+            console.error('❌ Erro ao salvar cliente no banco:', error);
+          }
+        }
 
         // Enviar conversão para UTMify com nomes reais dos produtos
         try {

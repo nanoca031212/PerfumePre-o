@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import Head from 'next/head'
-import { useAdminAuth } from '@/hooks/useAdminAuth'
 import AdminSidebar from './AdminSidebar'
 
 interface AdminShellProps {
@@ -9,16 +8,6 @@ interface AdminShellProps {
 }
 
 export default function AdminShell({ children, title }: AdminShellProps) {
-  const { isChecking } = useAdminAuth()
-
-  if (isChecking) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-white" />
-      </div>
-    )
-  }
-
   return (
     <>
       <Head>

@@ -2,17 +2,19 @@ import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import AdminShell from '@/components/admin/AdminShell'
 import {
-  MOCK_ORDERS,
   ORDER_STATUS_ORDER,
   ORDER_STATUS_LABELS,
   ORDER_STATUS_COLORS,
-  type Order,
   type OrderStatus,
 } from '@/lib/admin/orders'
+import { useOrders } from '@/hooks/useOrders'
+import { requireAdminAuth } from '@/lib/admin/require-auth'
 import { cn } from '@/lib/utils'
 
+export const getServerSideProps = requireAdminAuth()
+
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS)
+  const { orders, setOrders } = useOrders()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
 
@@ -75,6 +77,14 @@ export default function AdminOrdersPage() {
                   <td className="px-5 py-3">
                     <p className="text-slate-200">{order.customer}</p>
                     <p className="text-xs text-slate-500">{order.email}</p>
+                    {order.items && order.items.length > 0 && (
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {order.items.map((item) => `${item.quantity}x ${item.name}`).join(', ')}
+                      </p>
+                    )}
+                    {order.address && (
+                      <p className="mt-0.5 text-xs text-slate-600">{order.address}</p>
+                    )}
                   </td>
                   <td className="px-5 py-3 text-slate-400">{order.date}</td>
                   <td className="px-5 py-3">

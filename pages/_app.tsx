@@ -52,12 +52,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isQuizPage = router.pathname === '/quiz'
   const isCheckoutPage = router.pathname.startsWith('/checkout')
-  // /login/admin desativado por enquanto
-  // const isAdminPage = router.pathname.startsWith('/login/admin')
+  const isAdminPage = router.pathname.startsWith('/admin') || router.pathname === '/login/admin'
 
-  // if (isAdminPage) {
-  //   return <Component {...pageProps} />
-  // }
+  if (isAdminPage) {
+    return <Component {...pageProps} />
+  }
 
   return (
     <CartProvider>

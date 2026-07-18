@@ -1,20 +1,19 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { LayoutDashboard, Package, Mail, LogOut } from 'lucide-react'
-import { clearAdminAuthenticated } from '@/hooks/useAdminAuth'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { href: '/login/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/login/admin/orders', label: 'Orders', icon: Package },
-  { href: '/login/admin/email', label: 'Email', icon: Mail },
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/orders', label: 'Orders', icon: Package },
+  { href: '/admin/email', label: 'Email', icon: Mail },
 ]
 
 export default function AdminSidebar() {
   const router = useRouter()
 
-  const handleLogout = () => {
-    clearAdminAuthenticated()
+  const handleLogout = async () => {
+    await fetch('/api/admin/auth/logout', { method: 'POST' })
     router.replace('/login/admin')
   }
 
