@@ -143,28 +143,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const recalculateBundlePrices = (items: CartItem[]): CartItem[] => {
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-    const promo3Price = 49.99 / 3;
+    const promo2Price = 49.99 / 2;
 
-    if (totalQuantity <= 2) {
+    if (totalQuantity <= 1) {
       return items.map(item => ({ ...item, price: item.regularPrice || item.price }));
     }
 
-    if (totalQuantity === 3) {
-      return items.map(item => ({ ...item, price: promo3Price }));
+    if (totalQuantity === 2) {
+      return items.map(item => ({ ...item, price: promo2Price }));
     }
 
-    // 4+ perfumes: first 3 at bundle price, remainder at full price
-    let remainingPromo = 3;
+    // 3+ perfumes: first 2 at bundle price, remainder at full price
+    let remainingPromo = 2;
     return items.map(item => {
       const regularPrice = item.regularPrice || item.price;
       if (remainingPromo >= item.quantity) {
         remainingPromo -= item.quantity;
-        return { ...item, price: promo3Price };
+        return { ...item, price: promo2Price };
       } else if (remainingPromo > 0) {
         const unitsAtPromo = remainingPromo;
         const unitsAtFull = item.quantity - unitsAtPromo;
         remainingPromo = 0;
-        const blendedPrice = (unitsAtPromo * promo3Price + unitsAtFull * regularPrice) / item.quantity;
+        const blendedPrice = (unitsAtPromo * promo2Price + unitsAtFull * regularPrice) / item.quantity;
         return { ...item, price: blendedPrice };
       } else {
         return { ...item, price: regularPrice };

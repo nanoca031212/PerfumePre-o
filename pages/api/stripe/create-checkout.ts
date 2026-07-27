@@ -44,8 +44,8 @@ export default async function handler(
       req.socket.remoteAddress ||
       "";
 
-    // Preço exato do bundle de 3 em centavos (evita erro de arredondamento)
-    const BUNDLE_3_PRICE_CENTS = 4999; // £49.99
+    // Preço exato do bundle de 2 em centavos (evita erro de arredondamento)
+    const BUNDLE_2_PRICE_CENTS = 4999; // £49.99
 
     const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -71,23 +71,23 @@ export default async function handler(
           quantity: 1,
         },
       ];
-    } else if (totalQty === 3) {
-      // Bundle fixo de 3 perfumes
+    } else if (totalQty === 2) {
+      // Bundle fixo de 2 perfumes
       lineItems = [
         {
           price_data: {
             currency: "gbp",
             product_data: {
-              name: "3 Perfumes Bundle",
+              name: "2 Perfumes Bundle",
               metadata: { handles: items.map((i) => i.handle).join(",") },
             },
-            unit_amount: BUNDLE_3_PRICE_CENTS,
+            unit_amount: BUNDLE_2_PRICE_CENTS,
           },
           quantity: 1,
         },
       ];
     } else {
-      // 2, 4+ perfumes: primeiros 3 no preço do bundle, restante preço cheio
+      // 3+ perfumes: primeiros 2 no preço do bundle, restante preço cheio
       const totalCents = items.reduce((sum, item) => {
         const price = Number(item.price);
         const finalPrice = !isNaN(price) && price > 0 ? price : 69;

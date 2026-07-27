@@ -64,7 +64,8 @@
       "Bash(curl -s -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"lucasnatanael542@gmail.com\",\"password\":\"0dfUp54Yct27Y9XN\"}')",
       "Bash(npm uninstall *)",
       "Bash(curl -s -i http://localhost:3002/admin/dashboard)",
-      "Bash(curl -s -i -X POST http://localhost:3002/api/admin/auth/logout)"
+      "Bash(curl -s -i -X POST http://localhost:3002/api/admin/auth/logout)",
+      "Bash(grep -v \"pages\\\\\\\\\\\\\\\\detailsProdutc\")"
     ]
   }
 }

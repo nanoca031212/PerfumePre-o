@@ -344,7 +344,7 @@ export default function ProductPage({
             {/* Discount Banner */}
             <div className="border border-black w-full font-bold text-center py-2 mb-4">
               <span className="font-bold  text-black">
-                Pick any 3 fragrances you love for only £49.99
+                Pick any 2 fragrances you love for only £49.99
               </span>
             </div>
 
@@ -427,7 +427,7 @@ export default function ProductPage({
             rating: 4,
             title: "Great value for money",
             content:
-              "Really impressed with this set. All three fragrances are authentic and long-lasting. The presentation is beautiful too - makes for a perfect gift. Only giving 4 stars because one of the bottles had a slightly wonky spray nozzle, but still works fine.",
+              "Really impressed with this set. Both fragrances are authentic and long-lasting. The presentation is beautiful too - makes for a perfect gift. Only giving 4 stars because one of the bottles had a slightly wonky spray nozzle, but still works fine.",
             author: "James",
             location: "Manchester",
             age: "30 - 35 years",
@@ -441,7 +441,7 @@ export default function ProductPage({
             rating: 5,
             title: "Perfect Christmas Present",
             content:
-              "Bought this as a Christmas gift for my husband and he absolutely loves it! All three fragrances are his style and the value for money is incredible. The scents last all day and he gets lots of compliments. Will definitely be buying again!",
+              "Bought this as a Christmas gift for my husband and he absolutely loves it! Both fragrances are his style and the value for money is incredible. The scents last all day and he gets lots of compliments. Will definitely be buying again!",
             author: "Sarah",
             location: "Leeds",
             age: "35 - 40 years",
@@ -469,7 +469,7 @@ export default function ProductPage({
             rating: 5,
             title: "Amazing Deal!",
             content:
-              "Can't believe the value for money! Three full-size authentic fragrances for this price is incredible. They all smell exactly like the ones I've tested in department stores. Delivery was quick too.",
+              "Can't believe the value for money! Two full-size authentic fragrances for this price is incredible. They all smell exactly like the ones I've tested in department stores. Delivery was quick too.",
             author: "Emma",
             location: "Bristol",
             age: "25 - 30 years",

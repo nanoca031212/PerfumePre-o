@@ -19,16 +19,15 @@ interface Kit {
 const kits: Kit[] = [
   {
     id: "luxury-perfumes",
-    name: "3 Luxury Perfumes – Exclusive Online Kit",
+    name: "2 Luxury Perfumes – Exclusive Online Kit",
     wrestler: "Premium",
     price: 49.99,
     originalPrice: 169.99,
     savings: 120.00,
-    description: "3 Premium Fragrance Collection",
+    description: "2 Premium Fragrance Collection",
     items: [
       "Elegant Rose & Bergamot (100ml)",
       "Mysterious Oud & Vanilla (100ml)",
-      "Fresh Citrus & Cedar (100ml)",
       "Premium Gift Box",
       "Exclusive Online Access",
       "Limited Time Offer"

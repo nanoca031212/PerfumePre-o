@@ -39,21 +39,21 @@ type CheckoutItem = {
 
 function recalculateBundlePrices(items: CheckoutItem[]): CheckoutItem[] {
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  const p3 = 49.99 / 3;
+  const p2 = 49.99 / 2;
 
-  if (totalQty < 3) return items;
+  if (totalQty < 2) return items;
 
-  // First 3 at bundle price, remainder at full price
-  let rem = 3;
+  // First 2 at bundle price, remainder at full price
+  let rem = 2;
   return items.map((item) => {
     const full = item.regularPrice;
     if (rem >= item.quantity) {
       rem -= item.quantity;
-      return { ...item, price: p3 };
+      return { ...item, price: p2 };
     }
     if (rem > 0) {
       const blended =
-        (rem * p3 + (item.quantity - rem) * full) / item.quantity;
+        (rem * p2 + (item.quantity - rem) * full) / item.quantity;
       rem = 0;
       return { ...item, price: blended };
     }

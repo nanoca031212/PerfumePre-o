@@ -52,11 +52,11 @@ export default function BundleSelector({
   >([currentProduct, null, null, null, null, null]);
 
   const packCount =
-    selectedPack === "single" ? 1 : selectedPack === "trio" ? 3 : 6;
+    selectedPack === "single" ? 1 : selectedPack === "trio" ? 2 : 6;
 
   const unitPrice = Number(currentProduct.price.regular) || 36.0;
   const SINGLE_ORIGINAL = unitPrice * 2.5; // Showing a premium original price
-  const TRIO_ORIGINAL = unitPrice * 3 * 2;
+  const TRIO_ORIGINAL = unitPrice * 2 * 2;
   const HEXA_ORIGINAL = unitPrice * 6 * 2;
 
   // Read localStorage selections on mount
@@ -129,13 +129,14 @@ export default function BundleSelector({
       if (packId === "single") {
         finalSelections = [currentProduct, null, null, null, null, null];
       } else if (packId === "trio") {
+        finalSelections[2] = null;
         finalSelections[3] = null;
         finalSelections[4] = null;
         finalSelections[5] = null;
       }
     }
 
-    const pCount = packId === "trio" ? 3 : packId === "hexa" ? 6 : 1;
+    const pCount = packId === "trio" ? 2 : packId === "hexa" ? 6 : 1;
     for (let i = 1; i < pCount; i++) {
       if (!finalSelections[i]) {
         slotToFill = i;
@@ -235,7 +236,7 @@ export default function BundleSelector({
     },
     {
       id: "trio" as const,
-      label: "3 PERFUMES",
+      label: "2 PERFUMES",
       price: TRIO_PRICE,
       originalPrice: TRIO_ORIGINAL,
       popular: true,

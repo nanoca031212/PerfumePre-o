@@ -113,12 +113,12 @@ export default function ProductCardTPS({
       const stored = localStorage.getItem("bundleState");
       let state = stored
         ? JSON.parse(stored)
-        : { packType: "trio", selections: [null, null, null] };
-      if (!state.selections) state.selections = [null, null, null];
+        : { packType: "trio", selections: [null, null] };
+      if (!state.selections) state.selections = [null, null];
 
       if (state.packType === "single") {
         state.packType = "trio";
-        while (state.selections.length < 3) state.selections.push(null);
+        while (state.selections.length < 2) state.selections.push(null);
       }
 
       if (isSelectionMode && bundleSlot !== undefined) {
@@ -149,7 +149,7 @@ export default function ProductCardTPS({
       if (!isSelectionMode) {
         await addBundleToCart(finalSelections, state.packType);
 
-        if (finalCount === 3) {
+        if (finalCount === 2) {
           setIsOpen(true);
           return;
         }
@@ -157,7 +157,7 @@ export default function ProductCardTPS({
 
       if (isSelectionMode && returnTo) {
         let nextEmptySlotAfter = -1;
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) {
           if (!state.selections[i]) {
             nextEmptySlotAfter = i;
             break;
@@ -212,7 +212,7 @@ export default function ProductCardTPS({
 
             if (isSelectionMode && returnTo) {
               let nextEmptySlot = -1;
-              const pCount = state.packType === "trio" ? 3 : 1;
+              const pCount = state.packType === "trio" ? 2 : 1;
               for (let i = 0; i < pCount; i++) {
                 if (!state.selections[i]) {
                   nextEmptySlot = i;
@@ -262,8 +262,8 @@ export default function ProductCardTPS({
         let itemPrice: number;
         let itemOriginalPrice: number;
 
-        if (count >= 3 && i < 3) {
-          itemPrice = 49.99 / 3;
+        if (count >= 2 && i < 2) {
+          itemPrice = 49.99 / 2;
           itemOriginalPrice = regularPrice;
         } else {
           itemPrice = regularPrice;
@@ -372,7 +372,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Mix & match any 3 fragrances — £49.99 for all three
+            Mix & match any 2 fragrances — £49.99 for both
           </div>
 
           {/* Badge - Canto superior direito */}
