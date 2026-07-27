@@ -85,8 +85,14 @@ export default function BaseCollection({
           const nonNullSelections = state.selections.filter((p: any) => p);
           const totalSelected = nonNullSelections.length;
           setSelectedCount(totalSelected);
-          setRemaining(Math.max(0, 2 - totalSelected));
-          setPackName("2 Perfumes");
+          setRemaining(Math.max(0, 3 - totalSelected));
+          setPackName(
+            totalSelected >= 3
+              ? "3 Perfumes"
+              : totalSelected === 2
+                ? "2 Perfumes"
+                : "",
+          );
           const extractedImages = nonNullSelections.map((selection: any) => {
             return Array.isArray(selection.images)
               ? selection.images[0]
@@ -393,14 +399,18 @@ export default function BaseCollection({
           >
             <Info className="h-5 w-5" />
             <h5 className="mb-1 font-semibold leading-none tracking-tight text-sm">
-              {selectedCount >= 2
-                ? "🎉 Discount Unlocked!"
-                : "Mix & match — 2 perfumes por £49.99"}
+              {selectedCount >= 3
+                ? "🎉 Max Discount Unlocked!"
+                : selectedCount === 2
+                  ? "🎉 Congratulations! Discount Unlocked!"
+                  : "Mix & match — 2 for £49.99 or 3 for £79.99"}
             </h5>
             <div className="text-sm text-gray-500 mt-1">
-              {selectedCount < 2
-                ? `${2 - selectedCount} perfumes missing. Unlock the discount.`
-                : `First 2 perfumes for £49.99. `}
+              {selectedCount >= 3
+                ? `3 perfumes for £79.99 — the best price per bottle.`
+                : selectedCount === 2
+                  ? `£49.99 for 2 unlocked! Select 1 more for the max discount — 3 for £79.99. Or finish whenever you're ready.`
+                  : `${2 - selectedCount} perfume(s) missing. Unlock the discount.`}
             </div>
           </div>
         </div>

@@ -40,20 +40,25 @@ type CheckoutItem = {
 function recalculateBundlePrices(items: CheckoutItem[]): CheckoutItem[] {
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
   const p2 = 49.99 / 2;
+  const p3 = 79.99 / 3;
 
   if (totalQty < 2) return items;
 
-  // First 2 at bundle price, remainder at full price
-  let rem = 2;
+  if (totalQty === 2) {
+    return items.map((item) => ({ ...item, price: p2 }));
+  }
+
+  // 3+ perfumes: first 3 at max-discount bundle price, remainder at full price
+  let rem = 3;
   return items.map((item) => {
     const full = item.regularPrice;
     if (rem >= item.quantity) {
       rem -= item.quantity;
-      return { ...item, price: p2 };
+      return { ...item, price: p3 };
     }
     if (rem > 0) {
       const blended =
-        (rem * p2 + (item.quantity - rem) * full) / item.quantity;
+        (rem * p3 + (item.quantity - rem) * full) / item.quantity;
       rem = 0;
       return { ...item, price: blended };
     }
@@ -394,12 +399,13 @@ export default function CheckoutPage() {
                 {showPromoInfo && (
                   <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 p-3 rounded-lg shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2">
                     <h4 className="font-bold text-gray-900 text-xs mb-1">
-                      3-for-1 EXCLUSIVE OFFER
+                      EXCLUSIVE BUNDLE OFFER
                     </h4>
                     <p className="text-[11px] leading-relaxed text-gray-600 font-normal">
-                      Get 3 luxury 100ml fragrances for the price of one. This
-                      exclusive bundle deal applies automatically at checkout,
-                      saving you over £120 compared to individual retail prices.
+                      Get 2 luxury 100ml fragrances for £49.99, or 3 for
+                      £79.99. This exclusive bundle deal applies automatically
+                      at checkout, saving you over £120 compared to
+                      individual retail prices.
                     </p>
                     <div className="absolute left-4 -bottom-1 w-2 h-2 bg-white border-r border-b border-gray-200 rotate-45"></div>
                   </div>

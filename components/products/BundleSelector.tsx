@@ -17,7 +17,7 @@ export interface BundleSelection {
 }
 
 const TRIO_PRICE = 49.99;
-const HEXA_PRICE = 178.99;
+const HEXA_PRICE = 79.99;
 
 export default function BundleSelector({
   currentProduct,
@@ -52,12 +52,12 @@ export default function BundleSelector({
   >([currentProduct, null, null, null, null, null]);
 
   const packCount =
-    selectedPack === "single" ? 1 : selectedPack === "trio" ? 2 : 6;
+    selectedPack === "single" ? 1 : selectedPack === "trio" ? 2 : 3;
 
   const unitPrice = Number(currentProduct.price.regular) || 36.0;
   const SINGLE_ORIGINAL = unitPrice * 2.5; // Showing a premium original price
   const TRIO_ORIGINAL = unitPrice * 2 * 2;
-  const HEXA_ORIGINAL = unitPrice * 6 * 2;
+  const HEXA_ORIGINAL = unitPrice * 3 * 2;
 
   // Read localStorage selections on mount
   useEffect(() => {
@@ -133,10 +133,14 @@ export default function BundleSelector({
         finalSelections[3] = null;
         finalSelections[4] = null;
         finalSelections[5] = null;
+      } else if (packId === "hexa") {
+        finalSelections[3] = null;
+        finalSelections[4] = null;
+        finalSelections[5] = null;
       }
     }
 
-    const pCount = packId === "trio" ? 2 : packId === "hexa" ? 6 : 1;
+    const pCount = packId === "trio" ? 2 : packId === "hexa" ? 3 : 1;
     for (let i = 1; i < pCount; i++) {
       if (!finalSelections[i]) {
         slotToFill = i;
@@ -232,14 +236,21 @@ export default function BundleSelector({
       label: "1 PERFUME",
       price: unitPrice,
       originalPrice: SINGLE_ORIGINAL,
-      popular: false,
+      tag: undefined as string | undefined,
     },
     {
       id: "trio" as const,
       label: "2 PERFUMES",
       price: TRIO_PRICE,
       originalPrice: TRIO_ORIGINAL,
-      popular: true,
+      tag: "Most Popular" as string | undefined,
+    },
+    {
+      id: "hexa" as const,
+      label: "3 PERFUMES",
+      price: HEXA_PRICE,
+      originalPrice: HEXA_ORIGINAL,
+      tag: "Best Value" as string | undefined,
     },
   ];
 
@@ -261,11 +272,11 @@ export default function BundleSelector({
 
           return (
             <div key={pack.id} className="relative">
-              {/* Most Popular Badge — sits above the card */}
-              {pack.popular && (
+              {/* Tag Badge — sits above the card */}
+              {pack.tag && (
                 <div className="absolute -top-1 -right-12 -translate-x-1/2 z-10">
                   <span className="bg-[#f1f1f1] text-black text-[8px] rounded-full border border-[#7c7c7c] font-black px-3 py-1 uppercase tracking-widest shadow-md whitespace-nowrap">
-                    Most Popular
+                    {pack.tag}
                   </span>
                 </div>
               )}
@@ -274,7 +285,7 @@ export default function BundleSelector({
               <div
                 className={`rounded-lg overflow-hidden border transition-all duration-200 ${
                   isSelected ? "border-[#7c7c7c] shadow-lg" : "border-[#dbdbdb]"
-                } ${pack.popular ? "mt-3" : ""}`}
+                } ${pack.tag ? "mt-3" : ""}`}
               >
                 {/* Pack Row Button */}
                 <button

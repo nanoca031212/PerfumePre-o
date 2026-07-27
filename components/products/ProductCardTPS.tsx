@@ -106,6 +106,9 @@ export default function ProductCardTPS({
   const isSelectionMode =
     typeof bundleSlot === "string" && typeof returnTo === "string";
 
+  const getPackSlotCount = (packType: string) =>
+    packType === "hexa" ? 3 : packType === "trio" ? 2 : 1;
+
   const handleCardClick = async (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -149,7 +152,10 @@ export default function ProductCardTPS({
       if (!isSelectionMode) {
         await addBundleToCart(finalSelections, state.packType);
 
-        if (finalCount === 2) {
+        // Max discount reached (3 perfumes) — open the cart automatically.
+        // At 2 perfumes we just show the "unlock max discount" toast and let
+        // the customer decide whether to add one more or check out already.
+        if (finalCount === 3) {
           setIsOpen(true);
           return;
         }
@@ -157,7 +163,8 @@ export default function ProductCardTPS({
 
       if (isSelectionMode && returnTo) {
         let nextEmptySlotAfter = -1;
-        for (let i = 0; i < 2; i++) {
+        const slotCount = getPackSlotCount(state.packType);
+        for (let i = 0; i < slotCount; i++) {
           if (!state.selections[i]) {
             nextEmptySlotAfter = i;
             break;
@@ -212,7 +219,7 @@ export default function ProductCardTPS({
 
             if (isSelectionMode && returnTo) {
               let nextEmptySlot = -1;
-              const pCount = state.packType === "trio" ? 2 : 1;
+              const pCount = getPackSlotCount(state.packType);
               for (let i = 0; i < pCount; i++) {
                 if (!state.selections[i]) {
                   nextEmptySlot = i;
@@ -262,7 +269,10 @@ export default function ProductCardTPS({
         let itemPrice: number;
         let itemOriginalPrice: number;
 
-        if (count >= 2 && i < 2) {
+        if (count >= 3 && i < 3) {
+          itemPrice = 79.99 / 3;
+          itemOriginalPrice = regularPrice;
+        } else if (count === 2 && i < 2) {
           itemPrice = 49.99 / 2;
           itemOriginalPrice = regularPrice;
         } else {
@@ -372,7 +382,7 @@ export default function ProductCardTPS({
 
           {/* Promotional Banner */}
           <div className="bg-white border border-black text-center font-bold text-xs py-1 px-2 mb-2">
-            Mix & match any 2 fragrances — £49.99 for both
+            Mix & match — 2 for £49.99 or 3 for £79.99
           </div>
 
           {/* Badge - Canto superior direito */}

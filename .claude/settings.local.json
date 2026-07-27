@@ -65,7 +65,8 @@
       "Bash(npm uninstall *)",
       "Bash(curl -s -i http://localhost:3002/admin/dashboard)",
       "Bash(curl -s -i -X POST http://localhost:3002/api/admin/auth/logout)",
-      "Bash(grep -v \"pages\\\\\\\\\\\\\\\\detailsProdutc\")"
+      "Bash(grep -v \"pages\\\\\\\\\\\\\\\\detailsProdutc\")",
+      "Bash(npx next *)"
     ]
   }
 }

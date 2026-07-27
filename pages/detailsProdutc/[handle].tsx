@@ -344,7 +344,7 @@ export default function ProductPage({
             {/* Discount Banner */}
             <div className="border border-black w-full font-bold text-center py-2 mb-4">
               <span className="font-bold  text-black">
-                Pick any 2 fragrances you love for only £49.99
+                Pick 2 fragrances for £49.99 or 3 for £79.99
               </span>
             </div>
 
