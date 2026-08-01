@@ -70,7 +70,12 @@
       "Bash(curl -s -o /tmp/resp.html -w \"HTTP_STATUS:%{http_code}\\\\n\" -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"contact@northmind.shop\",\"password\":\"7mL4AGi5EWWspomd70M\"}')",
       "Bash(curl -s -i -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"contact@northmind.shop\",\"password\":\"7mL4AGi5EWWspomd70M\"}')",
       "Bash(curl -s -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"contact@northmind.shop\",\"password\":\"7mL4AGi5EWWspomd70M\"}')",
-      "Bash(tasklist *)"
+      "Bash(tasklist *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Get-CimInstance *)",
+      "Bash(npx vercel *)",
+      "Bash(git rev-list *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
