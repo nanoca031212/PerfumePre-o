@@ -7,7 +7,7 @@ import {
   ORDER_STATUS_COLORS,
   type OrderStatus,
 } from "@/lib/admin/orders";
-import { ORDER_STATUS_EMAIL_MESSAGES } from "@/lib/admin/email-messages";
+import { DEFAULT_EMAIL_MESSAGES } from "@/lib/admin/email-messages";
 import { useOrders } from "@/hooks/useOrders";
 import { requireAdminAuth } from "@/lib/admin/require-auth";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ export default function AdminEmailPage() {
     filteredOrders.every((order) => selectedIds.has(order.id));
 
   const eligibleSelectedCount = orders.filter(
-    (order) => selectedIds.has(order.id) && ORDER_STATUS_EMAIL_MESSAGES[order.status],
+    (order) => selectedIds.has(order.id) && DEFAULT_EMAIL_MESSAGES[order.status],
   ).length;
 
   const handleStatusChange = (orderId: string, status: OrderStatus) => {

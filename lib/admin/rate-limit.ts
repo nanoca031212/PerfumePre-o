@@ -1,8 +1,8 @@
 import type { NextApiRequest } from 'next'
 import { prisma } from '@/lib/prisma'
 
-const WINDOW_MS = 15 * 60 * 1000 // 15 minutos
-const MAX_FAILED_ATTEMPTS = 5
+const WINDOW_MS = 5 * 60 * 1000 // 5 minutos
+const MAX_FAILED_ATTEMPTS = 3
 
 export function getClientIp(req: NextApiRequest): string {
   const forwarded = req.headers['x-forwarded-for']

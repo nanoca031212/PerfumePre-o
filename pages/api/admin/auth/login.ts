@@ -1,8 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { timingSafeEqual } from 'crypto'
 import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
 import { createSessionCookie, setCookie } from '@/lib/admin/session'
 import { getClientIp, isRateLimited, recordAttempt } from '@/lib/admin/rate-limit'
+
+// Hash "dummy" usado quando o email não existe, para que bcrypt.compare
+// sempre rode e o tempo de resposta não revele se o email é válido.
+const DUMMY_HASH = '$2b$10$C6UzMDM.H6dfI/f/IKcEeOowSgV9BvV.gU4mSCTHVAQAWpwHPjVzS'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -21,31 +25,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Informe email e senha' })
   }
 
-  const adminEmail = process.env.EmailAdmin
-  const adminPasswordHashB64 = process.env.PasswordAdmin
+  const admin = await prisma.adminUser.findUnique({ where: { email } })
+  const passwordMatches = await bcrypt.compare(password, admin?.passwordHash ?? DUMMY_HASH)
 
-  if (!adminEmail || !adminPasswordHashB64) {
-    return res.status(500).json({ error: 'Autenticação de admin não configurada' })
-  }
-
-  // PasswordAdmin é armazenado em base64 no .env — o Next.js expande "$VAR"
-  // em valores de env, o que corrompe hashes bcrypt gravados em texto puro.
-  const adminPasswordHash = Buffer.from(adminPasswordHashB64, 'base64').toString('utf8')
-
-  // Comparação de email em tempo constante para evitar leak por timing.
-  const emailBuf = Buffer.from(email)
-  const adminEmailBuf = Buffer.from(adminEmail)
-  const emailMatches =
-    emailBuf.length === adminEmailBuf.length && timingSafeEqual(emailBuf, adminEmailBuf)
-  const passwordMatches = await bcrypt.compare(password, adminPasswordHash)
-
-  const success = emailMatches && passwordMatches
+  const success = Boolean(admin) && passwordMatches
   await recordAttempt(ip, success)
 
   if (!success) {
     return res.status(401).json({ error: 'Credenciais inválidas' })
   }
 
-  setCookie(res, createSessionCookie(adminEmail))
+  setCookie(res, createSessionCookie(admin!.email))
   return res.status(200).json({ success: true })
 }

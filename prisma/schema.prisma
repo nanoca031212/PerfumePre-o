@@ -19,6 +19,22 @@ model Customer {
   createdAt       DateTime @default(now())
 }
 
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MessageTemplate {
+  id        String   @id @default(cuid())
+  status    String   @unique
+  subject   String
+  body      String
+  updatedAt DateTime @updatedAt
+}
+
 model LoginAttempt {
   id        String   @id @default(cuid())
   ip        String

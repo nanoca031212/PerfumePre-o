@@ -66,7 +66,11 @@
       "Bash(curl -s -i http://localhost:3002/admin/dashboard)",
       "Bash(curl -s -i -X POST http://localhost:3002/api/admin/auth/logout)",
       "Bash(grep -v \"pages\\\\\\\\\\\\\\\\detailsProdutc\")",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(curl -s -o /tmp/resp.html -w \"HTTP_STATUS:%{http_code}\\\\n\" -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"contact@northmind.shop\",\"password\":\"7mL4AGi5EWWspomd70M\"}')",
+      "Bash(curl -s -i -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"contact@northmind.shop\",\"password\":\"7mL4AGi5EWWspomd70M\"}')",
+      "Bash(curl -s -X POST http://localhost:3002/api/admin/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"contact@northmind.shop\",\"password\":\"7mL4AGi5EWWspomd70M\"}')",
+      "Bash(tasklist *)"
     ]
   }
 }
