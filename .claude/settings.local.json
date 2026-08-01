@@ -75,7 +75,10 @@
       "PowerShell(Get-CimInstance *)",
       "Bash(npx vercel *)",
       "Bash(git rev-list *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(vercel --version)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(vercel whoami *)"
     ]
   }
 }
